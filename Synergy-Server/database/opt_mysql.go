@@ -389,6 +389,7 @@ func QueryFinishedRoomList(pageNum, pageSize int) (tableData []map[string]interf
 
 // 查询房间数量
 func QueryRoomNum(roomState int) (cnt int, err error) {
+
 	var strSql = ""
 	if roomState == consts.RoomStateClosed {
 		strSql = "select count(roomid) as cnt from room_info where r_state in (?,?)"
@@ -471,6 +472,7 @@ func QuerySpecialistNum(uid string) (cnt int, err error) {
  * 插入用户在线心跳包信息
  */
 func InsertUserOnlineInfo(uid string, optTs int, roomId string) (cnt int, err error) {
+
 	var strSql = "insert into user_online_info (ar_uid, ar_opt_ts, ar_ts, ar_roomid) values(?,?,?,?)"
 	stmt, err := global.GDb.Prepare(strSql)
 	defer stmt.Close()
