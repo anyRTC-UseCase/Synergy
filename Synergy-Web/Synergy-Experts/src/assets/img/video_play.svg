@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="40px" height="40px" viewBox="0 0 40 40" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>播放</title>
+    <defs>
+        <filter color-interpolation-filters="auto" id="filter-1">
+            <feColorMatrix in="SourceGraphic" type="matrix" values="0 0 0 0 0.952543 0 0 0 0 0.952680 0 0 0 0 0.952513 0 0 0 1.000000 0"></feColorMatrix>
+        </filter>
+        <rect id="path-2" x="0" y="0" width="40" height="40"></rect>
+    </defs>
+    <g id="专家端" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="播放" transform="translate(-1225.000000, -479.000000)" filter="url(#filter-1)">
+            <g transform="translate(1225.000000, 479.000000)">
+                <mask id="mask-3" fill="white">
+                    <use xlink:href="#path-2"></use>
+                </mask>
+                <g id="蒙版"></g>
+                <path d="M20.8240419,6.69860644 L38.8605114,32.9334712 C39.1733967,33.388577 39.0581041,34.0111567 38.6029983,34.3240419 C38.4363,34.4386471 38.2387631,34.5 38.0364695,34.5 L1.96353049,34.5 C1.41124574,34.5 0.96353049,34.0522847 0.96353049,33.5 C0.96353049,33.2977064 1.02488344,33.1001695 1.13948857,32.9334712 L19.1759581,6.69860644 C19.4888433,6.24350065 20.111423,6.1282081 20.5665288,6.44109333 C20.6674048,6.51044559 20.7546897,6.59773042 20.8240419,6.69860644 Z" id="三角形" fill="#FFFFFF" mask="url(#mask-3)" transform="translate(20.000000, 20.000000) rotate(-270.000000) translate(-20.000000, -20.000000) "></path>
+            </g>
+        </g>
+    </g>
+</svg>

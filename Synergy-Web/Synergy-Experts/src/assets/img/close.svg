@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="20px" height="20px" viewBox="0 0 20 20" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>pc图标/关闭</title>
+    <defs>
+        <filter color-interpolation-filters="auto" id="filter-1">
+            <feColorMatrix in="SourceGraphic" type="matrix" values="0 0 0 0 0.952543 0 0 0 0 0.952680 0 0 0 0 0.952513 0 0 0 1.000000 0"></feColorMatrix>
+        </filter>
+    </defs>
+    <g id="控件" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="编组" filter="url(#filter-1)">
+            <g transform="translate(3.061949, 2.980304)">
+                <line x1="14" y1="0" x2="0" y2="14" id="路径-10" stroke="#979797" stroke-width="1.5"></line>
+                <line x1="14" y1="2.84217094e-14" x2="0" y2="14" id="路径-10" stroke="#979797" stroke-width="1.5" transform="translate(7.000000, 7.000000) scale(-1, 1) translate(-7.000000, -7.000000) "></line>
+            </g>
+        </g>
+    </g>
+</svg>

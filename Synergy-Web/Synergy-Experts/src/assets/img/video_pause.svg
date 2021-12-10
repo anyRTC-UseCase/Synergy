@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="40px" height="40px" viewBox="0 0 40 40" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>暂停</title>
+    <defs>
+        <filter color-interpolation-filters="auto" id="filter-1">
+            <feColorMatrix in="SourceGraphic" type="matrix" values="0 0 0 0 0.952543 0 0 0 0 0.952680 0 0 0 0 0.952513 0 0 0 1.000000 0"></feColorMatrix>
+        </filter>
+        <rect id="path-2" x="0" y="0" width="40" height="40"></rect>
+    </defs>
+    <g id="专家端" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="暂停" transform="translate(-1185.000000, -479.000000)" filter="url(#filter-1)">
+            <g transform="translate(1185.000000, 479.000000)">
+                <mask id="mask-3" fill="white">
+                    <use xlink:href="#path-2"></use>
+                </mask>
+                <g id="蒙版"></g>
+                <rect id="矩形" stroke="#979797" fill="#D8D8D8" mask="url(#mask-3)" x="7.5" y="1.5" width="7" height="37" rx="1"></rect>
+                <rect id="矩形备份-10" stroke="#979797" fill="#D8D8D8" mask="url(#mask-3)" x="25.5" y="1.5" width="7" height="37" rx="1"></rect>
+            </g>
+        </g>
+    </g>
+</svg>

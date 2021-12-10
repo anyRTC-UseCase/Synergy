@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="34px" height="34px" viewBox="0 0 34 34" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>加载中</title>
+    <g id="专家端" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="pc" transform="translate(-1572.000000, -441.000000)" stroke="#979797" stroke-width="2">
+            <g id="编组" transform="translate(1572.000000, 441.000000)">
+                <line x1="17" y1="6.78450907" x2="17" y2="-3.76615909e-16" id="路径-14"></line>
+                <line x1="24.2234429" y1="9.77655709" x2="29.0208153" y2="4.97918472" id="路径-14"></line>
+                <line x1="30.6077455" y1="20.3922545" x2="30.6077455" y2="13.6077455" id="路径-14" transform="translate(30.607745, 17.000000) rotate(90.000000) translate(-30.607745, -17.000000) "></line>
+                <line x1="24.2234429" y1="24.2234429" x2="29.0208153" y2="29.0208153" id="路径-14"></line>
+                <line x1="17" y1="34" x2="17" y2="27.2154909" id="路径-14" transform="translate(17.000000, 30.607745) rotate(180.000000) translate(-17.000000, -30.607745) "></line>
+                <line x1="9.77655709" y1="24.2234429" x2="4.97918472" y2="29.0208153" id="路径-14"></line>
+                <line x1="3.39225453" y1="20.3922545" x2="3.39225453" y2="13.6077455" id="路径-14" transform="translate(3.392255, 17.000000) rotate(270.000000) translate(-3.392255, -17.000000) "></line>
+                <line x1="9.77655709" y1="9.77655709" x2="4.97918472" y2="4.97918472" id="路径-14"></line>
+            </g>
+        </g>
+    </g>
+</svg>

@@ -1,0 +1,66 @@
+{
+  "name": "antrtc_synergy",
+  "version": "2.0.0",
+  "private": true,
+  "scripts": {
+    "serve": "vue-cli-service serve",
+    "build": "vue-cli-service build",
+    "lint": "vue-cli-service lint --fix"
+  },
+  "dependencies": {
+    "ar-rtc-sdk": "^4.2.1",
+    "ar-rtm-sdk": "^1.0.5",
+    "axios": "^0.21.4",
+    "core-js": "^3.6.5",
+    "element-plus": "^1.1.0-beta.19",
+    "screenfull": "^5.1.0",
+    "videojs-contrib-hls": "5.14.1",
+    "videojs-contrib-hls.js": "3.2.0",
+    "vue": "^3.0.0",
+    "vue-router": "^4.0.0-0",
+    "vue-video-player": "4.0.6",
+    "vuex": "^4.0.0-0"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss7-compat": "^2.2.17",
+    "@vue/cli-plugin-babel": "~4.5.0",
+    "@vue/cli-plugin-eslint": "~4.5.0",
+    "@vue/cli-plugin-router": "~4.5.0",
+    "@vue/cli-plugin-vuex": "~4.5.0",
+    "@vue/cli-service": "~4.5.0",
+    "@vue/compiler-sfc": "^3.0.0",
+    "@vue/eslint-config-prettier": "^6.0.0",
+    "autoprefixer": "^9.8.8",
+    "babel-eslint": "^10.1.0",
+    "element-theme-chalk": "^2.15.6",
+    "element-themex": "^1.0.3",
+    "eslint": "^6.7.2",
+    "eslint-plugin-prettier": "^3.3.1",
+    "eslint-plugin-vue": "^7.0.0",
+    "node-sass": "^4.12.0",
+    "postcss": "^7.0.39",
+    "prettier": "^2.2.1",
+    "sass-loader": "^8.0.2",
+    "tailwindcss": "npm:@tailwindcss/postcss7-compat@^2.2.17"
+  },
+  "eslintConfig": {
+    "root": true,
+    "env": {
+      "node": true
+    },
+    "extends": [
+      "plugin:vue/vue3-essential",
+      "eslint:recommended",
+      "@vue/prettier"
+    ],
+    "parserOptions": {
+      "parser": "babel-eslint"
+    },
+    "rules": {}
+  },
+  "browserslist": [
+    "> 1%",
+    "last 2 versions",
+    "not dead"
+  ]
+}
