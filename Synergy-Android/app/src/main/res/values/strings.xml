@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">teamview</string>
+    <string name="nicknamePlease">请输入昵称</string>
+    <string name="workPlease">请输入工种产线</string>
+    <string name="login">登录</string>
+    <string name="creator">Powered by anyrtc.io</string>
+    <string name="start">开始协同</string>
+</resources>

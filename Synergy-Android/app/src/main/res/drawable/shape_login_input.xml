@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item>
+        <color android:color="#CCCCCC" />
+    </item>
+    <item android:bottom="1dp">
+        <shape android:shape="rectangle">
+            <solid
+                android:color="@color/statusBarColor" />
+
+            <padding
+                android:left="2dp"
+                android:right="2dp"
+                android:top="6dp"
+                android:bottom="6dp" />
+        </shape>
+    </item>
+</layer-list>

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <declare-styleable name="NotifyMessageView">
+        <attr name="notify_textSize" format="dimension" />
+        <attr name="notify_textColor" format="color" />
+        <attr name="notify_backgroundColor" format="color" />
+        <attr name="notify_verticalPadding" format="dimension" />
+        <attr name="notify_horizontalPadding" format="dimension" />
+        <attr name="notify_messagePadding" format="dimension" />
+    </declare-styleable>
+</resources>
