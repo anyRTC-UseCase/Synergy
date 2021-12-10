@@ -1,0 +1,707 @@
+basePath: /arapi/v1
+definitions:
+  models.ApiJson:
+    properties:
+      code:
+        description: 响应码
+        type: integer
+      data:
+        description: 响应数据
+        type: object
+      msg:
+        description: 消息
+        type: string
+    type: object
+  models.FileItem:
+    properties:
+      name:
+        description: 文件名字
+        type: string
+      url:
+        description: 文件url
+        type: string
+    type: object
+  models.FinishedRoomInfo:
+    properties:
+      roomFileUrl:
+        description: 房间录像文件url
+        type: string
+      roomHostId:
+        description: 房主uid
+        type: string
+      roomId:
+        description: 房间id
+        type: string
+      roomName:
+        description: 房间名称
+        type: string
+      roomStartTs:
+        description: 房间录制开始时间(单位:毫秒)
+        type: integer
+      roomState:
+        description: 房间状态(1:结束,2:进行中,3:转码中)
+        type: integer
+      roomStopTs:
+        description: 房间录制结束时间(单位:毫秒)
+        type: integer
+      roomTs:
+        description: 房间创建时间戳(单位:秒)
+        type: integer
+      userName:
+        description: 房主名
+        type: string
+    type: object
+  models.OnGoingRoomInfo:
+    properties:
+      roomHostId:
+        description: 房主uid
+        type: string
+      roomId:
+        description: 房间id
+        type: string
+      roomName:
+        description: 房间名称
+        type: string
+      roomState:
+        description: 房间状态(1:结束,2:进行中,3:转码中)
+        type: integer
+      roomTs:
+        description: 房间创建时间戳(单位:秒)
+        type: integer
+      userName:
+        description: 房主名
+        type: string
+    type: object
+  models.ParamPageList:
+    properties:
+      pageNum:
+        description: 页码（从1开始）
+        type: integer
+      pageSize:
+        description: 单页显示条数
+        type: integer
+    type: object
+  models.ParamsTestVod:
+    properties:
+      cname:
+        description: 频道id
+        type: string
+      uid:
+        description: 用户id
+        type: string
+    type: object
+  models.Payload:
+    properties:
+      Ts:
+        description: 事件发生的时间戳（单位：毫秒）
+        type: integer
+      appId:
+        description: 应用Id
+        type: string
+      channelName:
+        description: 频道名字
+        type: string
+      channelSId:
+        description: 频道会话Id
+        type: string
+      eventType:
+        description: Rtc消息通知类型
+        type: integer
+      platform:
+        description: 平台()
+        type: integer
+      reason:
+        description: 用户离开的原因
+        type: integer
+      uSId:
+        description: 业务系统uId
+        type: string
+      uid:
+        description: 业务系统uId
+        type: string
+    type: object
+  models.ReqGetRoomList:
+    properties:
+      pageNum:
+        description: 页码（从1开始）
+        type: integer
+      pageSize:
+        description: 单页显示条数
+        type: integer
+      roomState:
+        description: 房间状态(1:结束,2:进行中)
+        type: integer
+    type: object
+  models.ReqInsertRoom:
+    properties:
+      isJoin:
+        description: 是否加入房间(1:是,2:否)
+        type: integer
+    type: object
+  models.ReqInsertUserOnlineInfo:
+    properties:
+      optTs:
+        description: 心跳包时间戳(单位:秒)
+        type: integer
+      uid:
+        description: 用户id
+        type: string
+    type: object
+  models.ReqJoinRoom:
+    properties:
+      roomId:
+        description: 房间id
+        type: string
+      userRole:
+        description: 用户角色(1:主播,2:观众)
+        type: integer
+    type: object
+  models.ReqLeaveRoom:
+    properties:
+      roomId:
+        description: 房间id
+        type: string
+      uid:
+        description: 用户id
+        type: string
+    type: object
+  models.ReqSignIn:
+    properties:
+      uid:
+        description: 用户id(9位随机数字)
+        type: string
+      userName:
+        description: 用户名
+        type: string
+      userType:
+        description: 用户类型(1:智能终端,2:专家,3:管理员)
+        type: integer
+      workName:
+        description: 用户工种
+        type: string
+    type: object
+  models.ReqTeamViewRtcNotify:
+    properties:
+      eventType:
+        description: Rtc消息通知类型
+        type: integer
+      noticeID:
+        description: 通知的id
+        type: string
+      notifyMs:
+        description: 通知时间戳（单位：毫秒）
+        type: integer
+      payload:
+        $ref: '#/definitions/models.Payload'
+        description: 请求包
+        type: object
+      productId:
+        description: 通知产品类型
+        type: integer
+      secret:
+        description: 开发者通知服务用于签名的secret
+        type: string
+    type: object
+  models.ReqTeamViewVodNotify:
+    properties:
+      eventType:
+        description: Rtc消息通知类型
+        type: integer
+      noticeID:
+        description: 通知的id
+        type: string
+      notifyMs:
+        description: 通知时间戳（单位：毫秒）
+        type: integer
+      payload:
+        $ref: '#/definitions/models.VodPayload'
+        description: 请求包
+        type: object
+      productId:
+        description: 通知产品类型
+        type: integer
+    type: object
+  models.ReqUId:
+    properties:
+      uid:
+        description: 用户id
+        type: string
+    type: object
+  models.RespFinishedRoomList:
+    properties:
+      list:
+        description: 房间列表
+        items:
+          $ref: '#/definitions/models.FinishedRoomInfo'
+        type: array
+      totalNum:
+        description: 总数量
+        type: integer
+    type: object
+  models.RespGetSpecialist:
+    properties:
+      list:
+        description: 专家信息列表
+        items:
+          $ref: '#/definitions/models.SpecialistUserInfo'
+        type: array
+      totalNum:
+        description: 总数量
+        type: integer
+    type: object
+  models.RespInsertRoom:
+    properties:
+      roomHostId:
+        description: 房主uid
+        type: string
+      roomId:
+        description: 房间id
+        type: string
+      roomName:
+        description: 房间名称
+        type: string
+      roomState:
+        description: 房间状态(1:结束,2:进行中,3:转码中)
+        type: integer
+      roomTs:
+        description: 房间创建时间戳(单位:秒)
+        type: integer
+      rtcToken:
+        description: rtcToken(不加入房间时为空)
+        type: string
+    type: object
+  models.RespJoinRoom:
+    properties:
+      roomInfo:
+        $ref: '#/definitions/models.RoomInfo'
+        description: 房间信息
+        type: object
+      rtcToken:
+        description: rtcToken
+        type: string
+    type: object
+  models.RespOngoingRoomList:
+    properties:
+      list:
+        description: 房间列表
+        items:
+          $ref: '#/definitions/models.OnGoingRoomInfo'
+        type: array
+      totalNum:
+        description: 总数量
+        type: integer
+    type: object
+  models.RespSignIn:
+    properties:
+      appId:
+        description: appId
+        type: string
+      rtmToken:
+        description: rtmToken
+        type: string
+      uid:
+        description: 用户id
+        type: string
+      userName:
+        description: 用户名
+        type: string
+      userTs:
+        description: 用户登录时间戳(单位:秒)
+        type: integer
+      userType:
+        description: 用户类型(1:智能终端,2:专家,3:管理员)
+        type: integer
+      workName:
+        description: 用户工种
+        type: string
+    type: object
+  models.RespStartVodRecording:
+    properties:
+      Body:
+        $ref: '#/definitions/models.StartBody'
+        description: 响应体
+        type: object
+      Code:
+        description: 响应码
+        type: integer
+    type: object
+  models.RoomInfo:
+    properties:
+      roomHostId:
+        description: 房主uid
+        type: string
+      roomId:
+        description: 房间id
+        type: string
+      roomName:
+        description: 房间名称
+        type: string
+      roomState:
+        description: 房间状态(1:结束,2:进行中,3:转码中)
+        type: integer
+      roomTs:
+        description: 房间创建时间戳(单位:秒)
+        type: integer
+      roomVodResourceId:
+        description: 房间录像的resource ID
+        type: string
+      roomVodSId:
+        description: 房间录像的录制 ID
+        type: string
+      roomVodUId:
+        description: 房间录制在频道内使用的 UID
+        type: string
+    type: object
+  models.SpecialistUserInfo:
+    properties:
+      roomId:
+        description: 专家所在房间id
+        type: string
+      uid:
+        description: 用户id
+        type: string
+      userName:
+        description: 用户名
+        type: string
+      userState:
+        description: 用户状态(1:通话中,2:空闲,3:离线)
+        type: integer
+      userTs:
+        description: 用户登录时间戳(单位:秒)
+        type: integer
+      userType:
+        description: 用户类型(1:智能终端,2:专家,3:管理员)
+        type: integer
+      workName:
+        description: 用户工种
+        type: string
+    type: object
+  models.StartBody:
+    properties:
+      resourceId:
+        description: 云端录制使用的 resource ID。
+        type: string
+      sid:
+        description: 录制 ID。成功开始云端录制后，你会得到一个 sid （录制 ID)。该 ID 是一次录制周期的唯一标识。
+        type: string
+    type: object
+  models.UserInfo:
+    properties:
+      uid:
+        description: 用户id
+        type: string
+      userName:
+        description: 用户名
+        type: string
+      userTs:
+        description: 用户登录时间戳(单位:秒)
+        type: integer
+      userType:
+        description: 用户类型(1:智能终端,2:专家,3:管理员)
+        type: integer
+      workName:
+        description: 用户工种
+        type: string
+    type: object
+  models.VodPayload:
+    properties:
+      cname:
+        description: 频道名字
+        type: string
+      details:
+        description: 具体的消息内容(json)
+        type: string
+      sendts:
+        description: 事件发生的时间戳（单位：毫秒）
+        type: integer
+      sequence:
+        description: 消息序列号
+        type: integer
+      serviceType:
+        description: 回调事件服务的类型(0:云端录制服务,1:录制服务,2:上传模块,4:扩展服务)
+        type: integer
+      sid:
+        description: 业务系统sid
+        type: string
+      uid:
+        description: 业务系统uid
+        type: string
+    type: object
+host: 192.168.1.140:12681
+info:
+  contact:
+    email: support@swagger.io
+    name: API Support
+    url: http://www.swagger.io/support
+  description: This is a arteamview server.
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: http://swagger.io/terms/
+  title: anyRTC arteamview server api server
+  version: 1.0.0
+paths:
+  /file/uploadFile:
+    post:
+      consumes:
+      - multipart/form-data
+      description: upload file.
+      parameters:
+      - description: file
+        in: formData
+        name: file
+        required: true
+        type: file
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.FileItem'
+      summary: upload file.
+      tags:
+      - file
+  /teamview/getRoomList:
+    post:
+      consumes:
+      - application/json
+      description: 获取房间列表
+      parameters:
+      - description: 获取房间列表参数
+        in: body
+        name: default
+        required: true
+        schema:
+          $ref: '#/definitions/models.ReqGetRoomList'
+      responses:
+        "200":
+          description: 进行中房间列表
+          schema:
+            $ref: '#/definitions/models.RespOngoingRoomList'
+        "2002":
+          description: 结束房间列表(为了区分文档，code使用2002)
+          schema:
+            $ref: '#/definitions/models.RespFinishedRoomList'
+      summary: 获取房间列表
+      tags:
+      - teamview
+  /teamview/getRtcToken:
+    post:
+      consumes:
+      - application/json
+      description: 生成rtcToken
+      parameters:
+      - description: 录像频道id和uid参数
+        in: body
+        name: default
+        required: true
+        schema:
+          $ref: '#/definitions/models.ParamsTestVod'
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.ApiJson'
+      summary: 生成rtcToken
+      tags:
+      - vod
+  /teamview/getSpecialist:
+    post:
+      consumes:
+      - application/json
+      description: 获取专家列表
+      parameters:
+      - description: 获取专家列表参数
+        in: body
+        name: default
+        required: true
+        schema:
+          $ref: '#/definitions/models.ParamPageList'
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.RespGetSpecialist'
+      summary: 获取专家列表
+      tags:
+      - teamview
+  /teamview/getUserInfo:
+    post:
+      consumes:
+      - application/json
+      description: 获取用户信息
+      parameters:
+      - description: 获取用户信息
+        in: body
+        name: default
+        required: true
+        schema:
+          $ref: '#/definitions/models.ReqUId'
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.UserInfo'
+      summary: 获取用户信息
+      tags:
+      - teamview
+  /teamview/insertRoom:
+    post:
+      consumes:
+      - application/json
+      description: 创建房间
+      parameters:
+      - description: 创建房间
+        in: body
+        name: default
+        required: true
+        schema:
+          $ref: '#/definitions/models.ReqInsertRoom'
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.RespInsertRoom'
+      summary: 创建房间
+      tags:
+      - teamview
+  /teamview/insertUserOnlineInfo:
+    post:
+      consumes:
+      - application/json
+      description: 记录用户在线心跳包信息
+      parameters:
+      - description: 记录用户在线心跳包信息参数
+        in: body
+        name: default
+        required: true
+        schema:
+          $ref: '#/definitions/models.ReqInsertUserOnlineInfo'
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.ApiJson'
+      summary: 记录用户在线心跳包信息
+      tags:
+      - teamview
+  /teamview/joinRoom:
+    post:
+      consumes:
+      - application/json
+      description: 加入房间
+      parameters:
+      - description: 加入房间参数
+        in: body
+        name: default
+        required: true
+        schema:
+          $ref: '#/definitions/models.ReqJoinRoom'
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.RespJoinRoom'
+      summary: 加入房间
+      tags:
+      - teamview
+  /teamview/leaveRoom:
+    post:
+      consumes:
+      - application/json
+      description: 用户离开房间
+      parameters:
+      - description: 用户离开房间
+        in: body
+        name: default
+        required: true
+        schema:
+          $ref: '#/definitions/models.ReqLeaveRoom'
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.ApiJson'
+      summary: 用户离开房间
+      tags:
+      - teamview
+  /teamview/signIn:
+    post:
+      consumes:
+      - application/json
+      description: 用户登录
+      parameters:
+      - description: 用户登录参数
+        in: body
+        name: default
+        required: true
+        schema:
+          $ref: '#/definitions/models.ReqSignIn'
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.RespSignIn'
+      summary: 用户登录
+      tags:
+      - teamview
+  /teamview/startVod:
+    post:
+      consumes:
+      - application/json
+      description: 录制
+      parameters:
+      - description: 录像频道id和uid参数
+        in: body
+        name: default
+        required: true
+        schema:
+          $ref: '#/definitions/models.ParamsTestVod'
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.RespStartVodRecording'
+      summary: 录制
+      tags:
+      - vod
+  /teamview/teamViewRtcNotify:
+    post:
+      consumes:
+      - application/json
+      description: 消息回调
+      parameters:
+      - description: 消息回调
+        in: body
+        name: default
+        required: true
+        schema:
+          $ref: '#/definitions/models.ReqTeamViewRtcNotify'
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.ApiJson'
+      summary: 消息回调
+      tags:
+      - teamview
+  /teamview/teamViewVodNotify:
+    post:
+      consumes:
+      - application/json
+      description: 录像回调
+      parameters:
+      - description: 录像回调
+        in: body
+        name: default
+        required: true
+        schema:
+          $ref: '#/definitions/models.ReqTeamViewVodNotify'
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.ApiJson'
+      summary: 录像回调
+      tags:
+      - teamview
+swagger: "2.0"
