@@ -9,6 +9,7 @@ module.exports = {
           blue_400: "#3F72FF",
           gray_200: "#999999",
           gray_400: "#4D4D4D",
+          black_400: "#1A1A1A",
           green_400: "#00D067",
           red_400: "#FF432B",
           yellow_400: "#FF9A2B",

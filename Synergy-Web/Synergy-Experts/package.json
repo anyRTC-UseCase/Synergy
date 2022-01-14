@@ -10,6 +10,7 @@
   "dependencies": {
     "ar-rtc-sdk": "^4.2.1",
     "ar-rtm-sdk": "^1.0.5",
+    "ar-whiteboard": "^1.0.9",
     "axios": "^0.21.4",
     "core-js": "^3.6.5",
     "element-plus": "^1.1.0-beta.19",

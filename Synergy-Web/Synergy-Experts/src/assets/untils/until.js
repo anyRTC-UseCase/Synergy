@@ -27,3 +27,20 @@ export const throttle = (fn, delay = 100) => {
     }, delay);
   };
 };
+
+// 容器固定比例 w:h=4:3
+export const containerRatio = (id, applyid) => {
+  const oId = document.getElementById(id);
+
+  const oApplyId = document.getElementById(applyid);
+  const iHeight = oId.offsetHeight;
+  const iWidth = oId.offsetWidth;
+  // 宽度 > 高度
+  if (iWidth > (4 * iHeight) / 3) {
+    oApplyId.style.width = (4 * iHeight) / 3 + "px";
+    oApplyId.style.height = iHeight + "px";
+  } else {
+    oApplyId.style.width = iWidth + "px";
+    oApplyId.style.height = (3 * iWidth) / 4 + "px";
+  }
+};

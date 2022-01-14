@@ -5,6 +5,10 @@
 在 `src/api/api_config` 配置对应权限
 登录页面 `Signin.vue` 用户根据配置的权限进入协同
 
+### 白板协同
+
+仅 专家端 Synergy-Experts 支持
+
 ## 项目接口
 
 在 `src/api/api_config` 配置接口

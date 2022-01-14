@@ -32,21 +32,33 @@
     </el-header>
     <el-main class="flex p-0 select-none overflow-hidden">
       <!-- 视频 -->
-      <div class="flex-1 bg-black">
+      <div class="flex-1 bg-black relative">
         <!-- 终端视频 -->
         <div
-          v-show="!$store.state.terminaloffline && !$store.state.videoLoding"
-          class="w-full h-full relative"
+          class="w-full h-full relative flex justify-center items-center"
+          id="TerminalContainer"
         >
           <!-- 添加视频 -->
           <div id="terminalVideo" class="w-full h-full"></div>
-          <!-- 画笔标注 -->
-          <!-- <brush-marks /> -->
+          <!-- 白板画笔 -->
+          <div class="absolute z-30 w-full h-full top-0 left-0">
+            <div id="whiteboardBrush" class="w-full h-full"></div>
+          </div>
+          <!-- 白板相关操作 @click="boardOperate" -->
+          <div class="absolute bottom-9 z-30">
+            <div
+              :class="['board', boardType ? 'board_active' : '']"
+              @click="boardOperate"
+            >
+              <div class="board_open"></div>
+              <span class="ml-2">荧光笔</span>
+            </div>
+          </div>
         </div>
         <!-- 终端视频加载中 -->
         <div
           v-show="$store.state.videoLoding"
-          class="w-full h-full flex justify-center items-center text-synergy-gray_200 select-none"
+          class="absolute top-0 left-0 z-50 bg-black w-full h-full flex justify-center items-center text-synergy-gray_200 select-none"
         >
           <div class="flex flex-col items-center justify-center">
             <img
@@ -61,7 +73,7 @@
         <!-- 终端视频离线 -->
         <div
           v-show="!$store.state.videoLoding && $store.state.terminaloffline"
-          class="w-full h-full flex justify-center items-center"
+          class="absolute top-0 left-0 z-50 bg-black w-full h-full flex justify-center items-center"
         >
           <div class="flex flex-col items-center">
             <img src="@/assets/img/off_line.svg" draggable="false" alt="" />
@@ -80,8 +92,6 @@
 <script>
 // 侧边栏
 import SynergySidebar from "@/components/specialist/SynergySidebar";
-// 涂鸦
-// import BrushMarks from "@/components/specialist/BrushMarks";
 // 计时
 import { beginS, beginSclear } from "@/assets/untils/telephonometry.js";
 // RTC 相关
@@ -95,6 +105,10 @@ import {
 } from "@/anyrtc/rtc.js";
 // RTM
 import { ClearLocalInvitation } from "@/anyrtc/rtm.js";
+// 白板相关
+import { InitBoard, LaserOperation, LeaveBoard } from "@/anyrtc/board.js";
+// 设置容器比例 4：3
+import { containerRatio } from "@/assets/untils/until";
 // 页面提示
 import { ElMessageBox, ElMessage } from "element-plus";
 // 路由跳转
@@ -163,7 +177,18 @@ export default defineComponent({
         });
     };
 
+    // 激光笔
+    const boardType = ref(false);
+    const boardOperate = async () => {
+      boardType.value = !boardType.value;
+      await LaserOperation(boardType.value);
+      ElMessage.success(boardType.value ? "已开启荧光笔" : "已关闭荧光笔");
+    };
     onMounted(async () => {
+      // 设置视频容器比例
+      containerRatio("TerminalContainer", "terminalVideo");
+      // 白板初始化
+      await InitBoard(oGetRoute.query, "whiteboardBrush");
       // 设置角色 观众:只能订阅，不能发布音视频轨道
       await SetClientRole("主播");
       // 采集音频
@@ -176,6 +201,7 @@ export default defineComponent({
     onUnmounted(() => {
       // 清空计时
       telephonometryFn(false);
+      LeaveBoard();
       store.commit("emptyInvitationIng", []);
     });
     return {
@@ -187,6 +213,10 @@ export default defineComponent({
       // 音频开关
       AudioSwitch,
       audioSwitchFn,
+
+      // 白板操作
+      boardType,
+      boardOperate,
     };
   },
 });
@@ -200,5 +230,27 @@ export default defineComponent({
 // }
 .dit {
   @apply w-2 h-2 block rounded-full mr-3;
+}
+.board {
+  //
+  @apply py-4 cursor-pointer px-10 rounded-full bg-synergy-black_400 bg-opacity-80 font-bold text-synergy-gray_200 flex items-center justify-center;
+  .board_open {
+    background-image: url("../../assets/img/open.png");
+    @apply bg-cover w-5 h-5;
+  }
+  &:hover {
+    @apply bg-white text-synergy-blue_400;
+    .board_open {
+      background-image: url("../../assets/img/open_active.png");
+      @apply bg-cover w-5 h-5;
+    }
+  }
+}
+.board_active {
+  @apply text-synergy-blue_400 bg-white ring-synergy-blue_400;
+  .board_open {
+    background-image: url("../../assets/img/open_active.png");
+    @apply bg-cover w-5 h-5;
+  }
 }
 </style>
