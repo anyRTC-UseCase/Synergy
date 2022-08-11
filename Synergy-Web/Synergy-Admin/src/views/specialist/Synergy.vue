@@ -159,7 +159,11 @@ export default defineComponent({
         })
         .catch((err) => {
           console.log(err);
-          ElMessage.error("取消挂断" + JSON.stringify(err));
+          ElMessage({
+            message: "取消挂断" + JSON.stringify(err),
+            showClose: true,
+            type: "error",
+          });
         });
     };
 

@@ -28,7 +28,7 @@ oAxios.interceptors.request.use(
     let token = sessionStorage.getItem("token");
     if (token) {
       config.headers = {
-        "Authorization":"Bearer " + token,
+        Authorization: "Bearer " + token,
       };
     }
     return config;

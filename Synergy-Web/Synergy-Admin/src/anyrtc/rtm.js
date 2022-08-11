@@ -122,8 +122,11 @@ const RTMCallback = {
     });
     // 监听拒绝呼叫邀请
     remoteInvitation.on("RemoteInvitationRefused", () => {
-      console.log("监听拒绝呼叫邀请", invitationContent);
-      ElMessage.error("您已拒绝来自" + invitationContent.userName + "协同邀请");
+      ElMessage({
+        message: "您已拒绝来自" + invitationContent.userName + "协同邀请",
+        showClose: true,
+        type: "error",
+      });
     });
     // 监听主叫取消呼叫邀请
     remoteInvitation.on("RemoteInvitationCanceled", (reson) => {
@@ -133,7 +136,11 @@ const RTMCallback = {
       );
       console.log("监听主叫取消呼叫邀请", remoteInvitation);
       // 60秒无操作自动取消
-      ElMessage.error("60s未接受" + invitationContent.userName + "的邀请");
+      ElMessage({
+        message: "60s未接受" + invitationContent.userName + "的邀请",
+        showClose: true,
+        type: "error",
+      });
       clearRecordRemoteInviationLists(remoteInvitation);
     });
     // 监听呼叫邀请进程失败
@@ -149,7 +156,11 @@ const RTMCallback = {
     // 用户在其他地方登录，当前返回登录页面
     if (status == "DISCONNECTED" && reason == "REMOTE_LOGIN") {
       Store.loginRTM = false;
-      ElMessage.error("账号在别处登录");
+      ElMessage({
+        message: "账号在别处登录",
+        showClose: true,
+        type: "error",
+      });
       await LeaveRTCChannel();
       await DestroyRTC();
       await LogoutRTM();
@@ -180,7 +191,11 @@ export const InitRTM = async () => {
     })
     .catch((err) => {
       console.log("登录失败", err);
-      ElMessage.error("登录失败" + err.message);
+      ElMessage({
+        message: "登录失败" + err.message,
+        showClose: true,
+        type: "error",
+      });
     });
   // 监听收到来自主叫的呼叫邀请
   Store.rtmClient.on(

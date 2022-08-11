@@ -81,6 +81,7 @@
   </div>
   <div class="mt-5 flex justify-center">
     <el-pagination
+      :current-page="Pagination.pageNum"
       :page-sizes="[10, 20, 30, 40]"
       :page-size="Pagination.pageSize"
       :total="Pagination.totalNum"
@@ -109,7 +110,7 @@ import { downloadUrl } from "@/assets/untils/download.js";
 // 页面提示 ElMessage
 import { ElMessageBox } from "element-plus";
 // 路由跳转
-import { useRouter } from "vue-router";
+import { useRouter, useRoute } from "vue-router";
 // vuex 刷新
 import { useStore } from "vuex";
 import { defineComponent, ref, reactive, onMounted, watch } from "vue";
@@ -117,6 +118,7 @@ export default defineComponent({
   setup() {
     // 路由
     const oRoute = useRouter();
+    const route = useRoute();
     // vuex
     const store = useStore();
 
@@ -158,11 +160,13 @@ export default defineComponent({
 
     // 播放视频
     const playFn = (data) => {
-       oRoute.push({
+      oRoute.push({
         path: "/videoplay",
         query: {
           roomName: data.roomName,
           url: data.roomFileUrl,
+          pageNum: Pagination.pageNum,
+          pageSize: Pagination.pageSize,
         },
       });
       // const newHref = oRoute.resolve({
@@ -205,6 +209,8 @@ export default defineComponent({
     );
 
     onMounted(() => {
+      Pagination.pageNum = Number(route.params.pageNum || 1);
+      Pagination.pageSize = Number(route.params.pageSize || 10);
       LeaveRTCChannel();
       getAdminDatas();
     });

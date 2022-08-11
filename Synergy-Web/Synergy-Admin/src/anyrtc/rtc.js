@@ -159,10 +159,18 @@ const RTCCallback = {
     console.log("RTC SDK 连接状态", curState);
     switch (curState) {
       case "RECONNECTING":
-        ElMessage.warning("RTC 正在重连中");
+        ElMessage({
+          message: "RTC 正在重连中",
+          showClose: true,
+          type: "warning",
+        });
         if (Store.Role == "主播") {
           Store.reconnectionTimer = setTimeout(() => {
-            ElMessage.error("连接已断开");
+            ElMessage({
+              message: "连接已断开",
+              showClose: true,
+              type: "error",
+            });
             Store.reconnectionQuit = true;
             // 返回首页
             const Router = require("../router/index");
@@ -181,11 +189,19 @@ const RTCCallback = {
         }
         break;
       case "CONNECTING":
-        ElMessage.warning("RTC 连接中");
+        ElMessage({
+          message: "RTC 连接中",
+          showClose: true,
+          type: "warning",
+        });
         Store.reconnectionTimer && clearTimeout(Store.reconnectionTimer);
         break;
       case "DISCONNECTING":
-        ElMessage.warning("离开房间中");
+        ElMessage({
+          message: "离开房间中",
+          showClose: true,
+          type: "warning",
+        });
         Store.reconnectionTimer && clearTimeout(Store.reconnectionTimer);
         break;
       case "DISCONNECTED":
@@ -195,7 +211,11 @@ const RTCCallback = {
         // ElMessage.info("离开房间");
         // }
         if (reason == "UID_BANNED") {
-          ElMessage.error("账号在别处登录");
+          ElMessage({
+            message: "账号在别处登录",
+            showClose: true,
+            type: "error",
+          });
           // 清空存储返回登录页面
           // setTimeout(async () => {
           await LeaveRTCChannel();
@@ -217,7 +237,11 @@ const RTCCallback = {
   // Token 即将过期
   async tokenPrivilegeWillExpire() {
     if (Store.Role == "主播") {
-      ElMessage.warning("体验时间即将结束");
+      ElMessage({
+        message: "体验时间即将结束",
+        showClose: true,
+        type: "warning",
+      });
     } else {
       // 更新token
       const { code, data } = await joinRoom({
@@ -225,7 +249,11 @@ const RTCCallback = {
         userRole: Store.Role === "主播" ? 1 : 2,
       });
       if (code !== 0) {
-        ElMessage.error("加入房间失败");
+        ElMessage({
+          message: "加入房间失败",
+          showClose: true,
+          type: "error",
+        });
         Store.isJoinChannel = false;
         store.commit("upDataIsJoinChannel", false);
       } else {
@@ -242,7 +270,11 @@ const RTCCallback = {
   // Token 已过期
   async tokenPrivilegeDidExpire() {
     if (Store.Role == "主播") {
-      ElMessage.error("体验时间已到");
+      ElMessage({
+        message: "体验时间已到",
+        showClose: true,
+        type: "error",
+      });
       // 离开房间
       await LeaveRTCChannel();
       // 返回首页
@@ -321,7 +353,11 @@ export const JoinRTCChannel = async (info, videoId) => {
       userRole: Store.Role === "主播" ? 1 : 2,
     });
     if (code !== 0) {
-      ElMessage.error("加入房间失败");
+      ElMessage({
+        message: "加入房间失败",
+        showClose: true,
+        type: "error",
+      });
       Store.isJoinChannel = false;
       store.commit("upDataIsJoinChannel", false);
       return;
@@ -337,9 +373,12 @@ export const JoinRTCChannel = async (info, videoId) => {
           store.commit("setTerminalOffline", true);
         }, Store.terminalTime);
 
-        ElMessage.success(
-          "加入房间ID为" + Store.roomId + "的" + Store.roomName + "成功"
-        );
+        ElMessage({
+          message:
+            "加入房间ID为" + Store.roomId + "的" + Store.roomName + "成功",
+          showClose: true,
+          type: "success",
+        });
         if (Store.Role === "主播") {
           //  主播发布音频
           if (Store.localAudioTrack) {
@@ -350,10 +389,18 @@ export const JoinRTCChannel = async (info, videoId) => {
                 Store.hintUserJoin = true;
               })
               .catch((res) => {
-                ElMessage.error("发布失败", JSON.stringify(res));
+                ElMessage({
+                  message: "发布失败" + JSON.stringify(res),
+                  showClose: true,
+                  type: "error",
+                });
               });
           } else {
-            ElMessage.error("无音频，无法发布");
+            ElMessage({
+              message: "无音频，无法发布",
+              showClose: true,
+              type: "error",
+            });
           }
         }
       })
@@ -366,13 +413,20 @@ export const JoinRTCChannel = async (info, videoId) => {
         } else {
           str = err.message;
         }
-
-        ElMessage.error("加入频道失败:" + str);
+        ElMessage({
+          message: "加入频道失败:" + str,
+          showClose: true,
+          type: "error",
+        });
         Store.isJoinChannel = false;
         store.commit("upDataIsJoinChannel", false);
       });
   } else {
-    ElMessage.error("操作过于频繁");
+    ElMessage({
+      message: "操作过于频繁",
+      showClose: true,
+      type: "error",
+    });
   }
 };
 // 采集音频
@@ -385,7 +439,11 @@ export const CollectionAudio = async () => {
       }
     );
   } else {
-    ElMessage.warning("SDK没有找到麦克风");
+    ElMessage({
+      message: "SDK 没有找到麦克风",
+      showClose: true,
+      type: "warning",
+    });
   }
 };
 // 关闭频道内所有声音
@@ -404,7 +462,11 @@ export const CloseLocalAudio = (fase) => {
   if (Store.localAudioTrack) {
     Store.localAudioTrack.setEnabled(fase);
   } else {
-    ElMessage.warning("SDK没有找到麦克风，无效操作");
+    ElMessage({
+      message: "SDK 没有找到麦克风，无效操作",
+      showClose: true,
+      type: "warning",
+    });
   }
 };
 // 离开频道

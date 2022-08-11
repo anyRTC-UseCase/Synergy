@@ -8,12 +8,14 @@
       <span>{{ roomName }}</span>
       <div
         title="关闭"
-        class=""
+        class="cursor-pointer"
         @click="
           $router.push({
             name: 'Home',
             params: {
               type: 1,
+              pageNum: $route.query.pageNum || 1,
+              pageSize: $route.query.pageSize || 10,
             },
           })
         "
