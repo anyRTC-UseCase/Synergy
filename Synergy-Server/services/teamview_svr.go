@@ -242,6 +242,57 @@ func (u *userSvr) TeamViewRtcNotifySvr(roomId, uid string, eventType int, bytePa
 }
 
 /**
+ *　消息回调
+ */
+func (u *userSvr) V2TeamViewRtcNotifySvr(roomId, uid string, eventType int, byteParam string) (int, string, interface{}) {
+	global.GLogger.Info("===>V2TeamViewRtcNotifySvr called")
+	//频道销毁  ARtcChanDestroy = 102
+	//直播场景下主播加入频道  ARtcBroadcasterJoin = 103
+	//直播场景下主播离开频道  ARtcBroadCasterLeave = 104
+	//直播场景下观众进入频道  ARtcAudienceJoin = 105
+	//直播场景下观众离开频道  ARtcAudienceLeave = 106
+
+	if eventType == consts.ARtcChanDestroy {
+		//频道销毁  ARtcChanDestroy = 102
+		global.GLogger.Info("===>rtcNotify eventType: ", "ARtcChanDestroy")
+
+		//更新所有用户离开时间
+		affectRows, err := database.UpdateAllUserLeaveTs(roomId)
+		if err != nil {
+			global.GLogger.Error(err)
+		}
+		if affectRows < 0 {
+			global.GLogger.Error("UpdateAllUserLeaveTs err")
+		}
+
+		//如果房间还在进行，改为通话已结束
+		code, msg, _ := u.UpdateRoomStateCallFinished(roomId)
+		if code != consts.ErrCodeOk {
+			global.GLogger.Error(msg)
+		}
+	} else if eventType == consts.ARtcBroadcasterJoin {
+		//直播场景下主播加入频道  ARtcBroadcasterJoin = 103
+		global.GLogger.Info("----------->notify byteParam: ", byteParam)
+		//更新房间为正在进行中
+		code, msg, _ := u.UpdateRoomStateOpen(roomId)
+		if code != consts.ErrCodeOk {
+			global.GLogger.Error(msg)
+		}
+	} else if eventType == consts.ARtcBroadCasterLeave {
+		//直播场景下主播离开频道  ARtcBroadCasterLeave = 104
+		global.GLogger.Info("===>rtcNotify eventType: ", "ARtcBroadCasterLeave")
+
+		//更新房间为通话结束
+		code, msg, _ := u.UpdateRoomStateCallFinished(roomId)
+		if code != consts.ErrCodeOk {
+			global.GLogger.Error(msg)
+		}
+	}
+
+	return consts.ErrCodeOk, consts.ErrOk, nil
+}
+
+/**
  *　录像回调
  */
 func (u *userSvr) TeamViewVodNotifySvr(roomId, uid string, eventType int, byteParam string, sendTs int64) (int, string, interface{}) {
@@ -281,6 +332,112 @@ func (u *userSvr) TeamViewVodNotifySvr(roomId, uid string, eventType int, bytePa
 		}
 		if affectRows < 0 {
 			global.GLogger.Error("UpdateRoomStopTs err")
+		}
+	}
+
+	return consts.ErrCodeOk, consts.ErrOk, nil
+}
+
+/**
+ *　录像回调
+ */
+func (u *userSvr) V2TeamViewVodNotifySvr(details, roomId, uid string, eventType int, byteParam string, sendTs int64) (int, string, interface{}) {
+	global.GLogger.Info("===>V2TeamViewVodNotifySvr called")
+	// 录制文件已上传至指定的第三方云存储
+	//ARtcVodUploaded = 31
+	// 录制服务已启动
+	//ARtcVodRecorderStarted = 40
+	// 录制组件已退出
+	//ARtcVodRecorderLeave = 41
+	if eventType == consts.ARtcVodUploaded {
+		global.GLogger.Info("===>vodNotify eventType: ", "ARtcVodUploaded")
+		//房间状态(1:结束,2:进行中,3:转码中)
+		//房间改为结束
+		code, msg, _ := u.UpdateRoomStateClosed(roomId)
+		if code != consts.ErrCodeOk {
+			global.GLogger.Error(msg)
+		}
+
+		code, msg, arrRoomInfo := u.GetRoomInfoById(roomId)
+		if code == consts.ErrCodeOk {
+			if len(arrRoomInfo) > 0 {
+				roomInfo := arrRoomInfo[0]
+				if utils.StrEmpty(roomInfo.RoomFileUrl) {
+					//将回调中的录像文件入库
+					var vodNotifyDetails models.VodNotifyDetails
+					err := utils.ARUnmarshalJson(details, &vodNotifyDetails)
+					if err != nil {
+						global.GLogger.Error(err)
+						return consts.ErrCodeInternal, consts.ErrJsonUnmarshal, err
+					}
+
+					fileName := consts.StrEmpty
+					fileList := vodNotifyDetails.FileList
+					if len(fileList) == 0 {
+						global.GLogger.Error("vod notify fileList len 0")
+					} else {
+						for i, _ := range fileList {
+							if utils.Equals(path.Ext(fileList[i].Filename), consts.StrFileSuffix) {
+								fileName = fileList[i].Filename
+								break
+							}
+						}
+					}
+
+					if utils.StrEmpty(fileName) {
+						global.GLogger.Error("vod notify no mp4 file")
+						fileName = roomInfo.RoomVodSId + consts.StrUnderline + roomId + consts.StrFileSuffix
+					}
+
+					fileUrl := global.GConfig.HttpVodFilePrefix + fileName
+					global.GLogger.Info("vod fileUrl: ", fileUrl)
+
+					affectRows, err := database.UpdateRoomVodUrl(roomId, fileUrl)
+					if err != nil {
+						global.GLogger.Error(err)
+						return consts.ErrCodeDbError, consts.ErrDbError, err
+					}
+					if affectRows < 0 {
+						global.GLogger.Error("UpdateRoomVodUrl err")
+						return consts.ErrCodeDbError, consts.ErrDbError, err
+					}
+
+				} else {
+					global.GLogger.Info("Room FileUrl: ", roomInfo.RoomFileUrl)
+				}
+			} else {
+				return consts.ErrCodeRoomNotExists, consts.ErrRoomNotExists, nil
+			}
+		} else {
+			global.GLogger.Error("u.GetRoomInfoById err: ", msg)
+		}
+	} else if eventType == consts.ARtcVodRecorderStarted {
+		global.GLogger.Info("===>vodNotify eventType: ", "ARtcVodRecorderStarted")
+		//更新房间录像开始时间
+		affectRows, err := database.UpdateRoomStarTs(roomId, sendTs)
+		if err != nil {
+			global.GLogger.Error(err)
+			return consts.ErrCodeDbError, consts.ErrDbError, nil
+		}
+		if affectRows < 0 {
+			return consts.ErrCodeFailed, consts.ErrFailed, nil
+		}
+	} else if eventType == consts.ARtcVodRecorderLeave {
+		global.GLogger.Info("===>vodNotify eventType: ", "ARtcVodRecorderLeave")
+
+		//更新房间录像结束时间
+		affectRows, err := database.UpdateRoomStopTs(roomId, sendTs)
+		if err != nil {
+			global.GLogger.Error(err)
+		}
+		if affectRows < 0 {
+			global.GLogger.Error("UpdateRoomStopTs err")
+		}
+
+		//更新房间为转码
+		code, msg, _ := u.V2UpdateRoomStateMixed(roomId)
+		if code != consts.ErrCodeOk {
+			global.GLogger.Error(msg)
 		}
 	}
 
@@ -396,6 +553,75 @@ func (u *userSvr) InsertRoomSvr(uid string, isJoin int) (int, string, interface{
 	}
 }
 
+/**
+ *　创建房间
+ */
+func (u *userSvr) V2InsertRoomSvr(uid string, isJoin int) (int, string, interface{}) {
+	global.GLogger.Info("V2InsertRoomSvr called")
+
+	//1.根据uid查询用户信息
+	code, msg, arrUserInfo := u.GetUserInfoByUId(uid)
+
+	if code == consts.ErrCodeOk {
+		if len(arrUserInfo) > 0 {
+			user := arrUserInfo[0]
+			//2.生成roomid
+			roomId := database.GetRoomId()
+			roomName := user.UserName + consts.RoomNameSuffix
+
+			roomState := consts.RoomStateCallFinished
+
+			//是否加入房间(1:是,2:否)
+			if isJoin == consts.IsJoinRoom {
+				roomState = consts.RoomStateOpen
+			}
+
+			//2 入库
+			affectRows, err := database.InsertRoomInfo(roomId, roomName, uid, roomState)
+			if err != nil {
+				global.GLogger.Error(err)
+				return consts.ErrCodeDbError, consts.ErrDbError, nil
+			}
+
+			if affectRows == 0 {
+				return consts.ErrCodeDbError, consts.ErrDbError, nil
+			}
+
+			var roomInfo models.RespInsertRoom
+			if isJoin == consts.IsJoinRoom {
+				//rtcToken
+				code, msg, rtcToken := u.GetRtcToken(utils.FormatNowUnix(), roomId, uid)
+				if code != consts.ErrCodeOk {
+					return code, msg, nil
+				}
+				roomInfo.RtcToken = rtcToken
+				//插入user_join
+				affectRows, err := database.InsertUserJoinInfo(roomId, uid, consts.UserRoleHost)
+				if err != nil {
+					global.GLogger.Error(err)
+					return consts.ErrCodeDbError, consts.ErrDbError, nil
+				}
+				if affectRows == 0 {
+					return consts.ErrCodeFailed, consts.ErrFailed, nil
+				}
+				//创建房间以主播身份进入频道调用录像
+				go u.StartVod(roomId, uid)
+			}
+			roomInfo.RoomId = roomId
+			roomInfo.RoomHostId = uid
+			roomInfo.RoomName = roomName
+			roomInfo.RoomState = roomState
+			roomInfo.RoomTs = int(utils.FormatNowUnix())
+
+			return consts.ErrCodeOk, consts.ErrOk, roomInfo
+		} else {
+			return consts.ErrCodeUserNotExists, consts.ErrUserNotExists, nil
+		}
+	} else {
+		return code, msg, nil
+	}
+}
+
 //主播身份进入频道调用录像
 func (u *userSvr) StartVod(roomId, uid string) {
 	//1.主播uid存入redis中
@@ -410,7 +636,7 @@ func (u *userSvr) StartVod(roomId, uid string) {
 	var vodRecord models.RespStartVodRecording
 	for {
 		count++
-		code, msg, vodRecord = u.V2StartVodSvr(roomId, vodUId)
+		code, msg, vodRecord = u.V2StartVodSvr(roomId, vodUId, uid)
 		if code != iris.StatusOK {
 			global.GLogger.Error("StartVodSvr code: ", code, " msg: ", msg)
 			flag = false
@@ -521,6 +747,61 @@ func (u *userSvr) JoinRoomSvr(roomId, uid string, userRole int) (int, string, in
 }
 
 /**
+ *　加入房间
+ */
+func (u *userSvr) V2JoinRoomSvr(roomId, uid string, userRole int) (int, string, interface{}) {
+	global.GLogger.Info("V2JoinRoomSvr called")
+
+	//1.获取房间信息
+	code, msg, arrRoomInfo := u.GetRoomInfoById(roomId)
+	if code == consts.ErrCodeOk {
+		if len(arrRoomInfo) > 0 {
+			roomInfo := arrRoomInfo[0]
+
+			//2.插入user_join
+			affectRows, err := database.InsertUserJoinInfo(roomId, uid, userRole)
+			if err != nil {
+				global.GLogger.Error(err)
+				return consts.ErrCodeDbError, consts.ErrDbError, nil
+			}
+			if affectRows == 0 {
+				return consts.ErrCodeFailed, consts.ErrFailed, nil
+			}
+
+			//3.生成rtcToken
+			code, msg, rtcToken := u.GetRtcToken(utils.FormatNowUnix(), roomId, uid)
+			if code != consts.ErrCodeOk {
+				return code, msg, nil
+			}
+			var respJoinRoom models.RespJoinRoom
+			respJoinRoom.RoomInfo = roomInfo
+			respJoinRoom.RtcToken = rtcToken
+
+			//4.如果是主播,uid存入redis中
+			//if userRole == consts.UserRoleHost {
+			//	utils.ZAddRdsRoomUId(roomId, uid)
+			//}
+
+			//5.查询房间里人数
+			totalNum, err := database.QueryRoomUserNum(roomId)
+			if err != nil {
+				global.GLogger.Error(err)
+			}
+			if totalNum == consts.IntOne {
+				//6.房间人数为1说明创建房间时没有加入房间,那么当第一个人加入房间时录像
+				go u.StartVod(roomId, uid)
+			}
+
+			return consts.ErrCodeOk, consts.ErrOk, respJoinRoom
+		} else {
+			return consts.ErrCodeRoomNotExists, consts.ErrRoomNotExists, nil
+		}
+	} else {
+		return code, msg, nil
+	}
+}
+
+/**
  *　获取房间信息
  */
 func (u *userSvr) GetRoomInfoById(roomId string) (int, string, []models.RoomInfo) {
@@ -573,6 +854,53 @@ func (u *userSvr) LeaveRoomSvr(roomId, uid string) (int, string, interface{}) {
 						//房间状态(1:结束,2:进行中,3:转码中)
 						//3.房间改为转码
 						code, msg, _ := u.UpdateRoomStateMixed(roomId)
+						if code != consts.ErrCodeOk {
+							global.GLogger.Error(msg)
+						}
+						//4.停止录像
+						u.StopVodSvr(roomId)
+					}
+				}
+			}
+		}
+	}()
+	return consts.ErrCodeOk, consts.ErrOk, nil
+}
+
+/**
+ *　用户离开房间
+ */
+func (u *userSvr) V2LeaveRoomSvr(roomId, uid string) (int, string, interface{}) {
+	global.GLogger.Info("V2LeaveRoomSvr called")
+
+	//1.更新用户离开时间
+	affectRows, err := database.UpdateUserLeaveTs(roomId, uid)
+	if err != nil {
+		global.GLogger.Error(err)
+		return consts.ErrCodeDbError, consts.ErrDbError, nil
+	}
+	if affectRows < 0 {
+		return consts.ErrCodeFailed, consts.ErrFailed, nil
+	}
+
+	go func() {
+		//2.判断此用户是以主播还是观众身份离开
+		code, msg, arrUserJoinInfo := u.GetUserJoinInfo(roomId, uid)
+		if code != consts.ErrCodeOk {
+			global.GLogger.Error("u.GetUserJoinInfo err: ", msg)
+		}
+		if len(arrUserJoinInfo) > 0 {
+			userJoinInfo := arrUserJoinInfo[0]
+			if userJoinInfo.UserRole == consts.UserRoleHost {
+				//判断key是否存在
+				exists := utils.QueryKeyIsNotExists(roomId)
+				if exists {
+					//删除redis集合中的uid
+					uidNums := utils.ZRemRdsRoomUId(roomId, uid)
+					if uidNums == 0 {
+						//房间状态(1:结束,2:进行中,3:转码中)
+						//3.房间改为通话结束
+						code, msg, _ := u.UpdateRoomStateCallFinished(roomId)
 						if code != consts.ErrCodeOk {
 							global.GLogger.Error(msg)
 						}
@@ -695,13 +1023,13 @@ func (u *userSvr) InsertUserOnlineInfoSvr(uid string, optTs int, roomId string) 
 /**
  *　调用resrful api开始录制
  */
-func (u *userSvr) V2StartVodSvr(cname, uid string) (int, string, models.RespStartVodRecording) {
+func (u *userSvr) V2StartVodSvr(cname, vodUId, uid string) (int, string, models.RespStartVodRecording) {
 	global.GLogger.Info("V2StartVodSvr called")
 	var respStartVodRecording models.RespStartVodRecording
 	//1.获取resourceId
 	acquireParam := models.ReqGetVodResourceId{
 		Cname: cname,
-		UID:   uid,
+		UID:   vodUId,
 		ClientRequest: models.AcquireClientRequest{
 			ResourceExpiredHour: consts.DftResExpire,
 		},
@@ -746,17 +1074,18 @@ func (u *userSvr) V2StartVodSvr(cname, uid string) (int, string, models.RespStar
 		return code, "vod acquire resourceId error", respStartVodRecording
 	}
 
-	time.Sleep(consts.Dft5Sec)
+	//休眠1s
+	//time.Sleep(consts.Dft1Sec)
 	//2.开始录制
 	//rtcToken
-	code, msg, rtcToken := u.GetRtcToken(utils.FormatNowUnix(), cname, uid)
+	code, msg, rtcToken := u.GetRtcToken(utils.FormatNowUnix(), cname, vodUId)
 	if code != consts.ErrCodeOk {
 		global.GLogger.Error(msg)
 		return code, msg, respStartVodRecording
 	}
 	startParam := models.ReqStartVodRecording{
 		Cname: cname,
-		UID:   uid,
+		UID:   vodUId,
 		ClientRequest: models.StartClientRequest{
 			Token: rtcToken,
 			RecordingConfig: models.RecordingConfig{
@@ -770,7 +1099,9 @@ func (u *userSvr) V2StartVodSvr(cname, uid string) (int, string, models.RespStar
 					Fps:              consts.DftVodTransFps,
 					MixedVideoLayout: consts.DftVodTransVideoLayout,
 				},
-				SubscribeUidGroup: consts.DftSubscribeUidGroup,
+				//SubscribeUidGroup: consts.DftSubscribeUidGroup,
+				SubscribeAudioUids: []string{"#allstream#"},
+				SubscribeVideoUids: []string{uid},
 			},
 			RecordingFileConfig: models.RecordingFileConfig{
 				AvFileType: []string{consts.VodStreamHls, consts.VodStreamMp4},
@@ -832,6 +1163,22 @@ func (u *userSvr) DayDeleteUserOnlineInfo() (int, string, interface{}) {
 	return consts.ErrCodeOk, consts.ErrOk, nil
 }
 
+// DayDeleteRoom 每天0点55分执行任务删掉30天之前的房间
+func (u *userSvr) DayDeleteRoom() (int, string, interface{}) {
+	global.GLogger.Info("DayDeleteRoom called")
+	ts := utils.FormatNowUnix() - int64(consts.Dft24Hour/time.Second)*consts.IntThirty
+	cnt, err := database.DayDeleteRoom(ts)
+	if err != nil {
+		global.GLogger.Error(err)
+		return consts.ErrCodeDbError, consts.ErrDbError, nil
+	}
+	if cnt < 0 {
+		global.GLogger.Error(err)
+		return consts.ErrCodeDbError, consts.ErrDbError, nil
+	}
+	return consts.ErrCodeOk, consts.ErrOk, nil
+}
+
 //更新房间状态
 func (u *userSvr) UpdateRoomState(roomId string, roomState int) (int, string, interface{}) {
 	global.GLogger.Info("UpdateRoomState ts: ", utils.FormatNowUnix(), ",roomId: ", roomId, ",roomState: ", roomState)
@@ -848,7 +1195,7 @@ func (u *userSvr) UpdateRoomState(roomId string, roomState int) (int, string, in
 	return consts.ErrCodeOk, consts.ErrOk, nil
 }
 
-//更新房间状态为转码
+// UpdateRoomStateMixed 更新房间状态为转码(正在进行中到转码)
 func (u *userSvr) UpdateRoomStateMixed(roomId string) (int, string, interface{}) {
 
 	affectRows, err := database.UpdateRoomStateMixed(roomId)
@@ -861,6 +1208,54 @@ func (u *userSvr) UpdateRoomStateMixed(roomId string) (int, string, interface{})
 		return consts.ErrCodeDbError, consts.ErrDbError, nil
 	}
 	global.GLogger.Info("UpdateRoomStateMixed ts: ", utils.FormatNowUnix(), ",affectRows: ", affectRows)
+	return consts.ErrCodeOk, consts.ErrOk, nil
+}
+
+// V2UpdateRoomStateMixed 更新房间状态为转码(通话结束到转码)
+func (u *userSvr) V2UpdateRoomStateMixed(roomId string) (int, string, interface{}) {
+
+	affectRows, err := database.V2UpdateRoomStateMixed(roomId)
+	if err != nil {
+		global.GLogger.Error(err)
+		return consts.ErrCodeDbError, consts.ErrDbError, nil
+	}
+	if affectRows < 0 {
+		global.GLogger.Error(err)
+		return consts.ErrCodeDbError, consts.ErrDbError, nil
+	}
+	global.GLogger.Info("UpdateRoomStateMixed ts: ", utils.FormatNowUnix(), ",affectRows: ", affectRows)
+	return consts.ErrCodeOk, consts.ErrOk, nil
+}
+
+// UpdateRoomStateCallFinished 更新房间状态为通话结束
+func (u *userSvr) UpdateRoomStateCallFinished(roomId string) (int, string, interface{}) {
+
+	affectRows, err := database.UpdateRoomStateCallFinished(roomId)
+	if err != nil {
+		global.GLogger.Error(err)
+		return consts.ErrCodeDbError, consts.ErrDbError, nil
+	}
+	if affectRows < 0 {
+		global.GLogger.Error(err)
+		return consts.ErrCodeDbError, consts.ErrDbError, nil
+	}
+	global.GLogger.Info("UpdateRoomStateCallFinished ts: ", utils.FormatNowUnix(), ",affectRows: ", affectRows)
+	return consts.ErrCodeOk, consts.ErrOk, nil
+}
+
+// UpdateRoomStateOpen 更新房间状态为正在进行中
+func (u *userSvr) UpdateRoomStateOpen(roomId string) (int, string, interface{}) {
+
+	affectRows, err := database.UpdateRoomStateOpen(roomId)
+	if err != nil {
+		global.GLogger.Error(err)
+		return consts.ErrCodeDbError, consts.ErrDbError, nil
+	}
+	if affectRows < 0 {
+		global.GLogger.Error(err)
+		return consts.ErrCodeDbError, consts.ErrDbError, nil
+	}
+	global.GLogger.Info("UpdateRoomStateOpen ts: ", utils.FormatNowUnix(), ",affectRows: ", affectRows)
 	return consts.ErrCodeOk, consts.ErrOk, nil
 }
 
@@ -904,7 +1299,7 @@ func (u *userSvr) GetUserJoinInfo(roomId, uid string) (int, string, []models.Use
  *　调用resrful api停止录制
  */
 func (u *userSvr) StopVodSvr(cname string) {
-	global.GLogger.Info("StopVodSvr called")
+	global.GLogger.Info("StopVodSvr called cname：", cname)
 
 	//房间信息
 	code, msg, arrRoomInfo := u.GetRoomInfoById(cname)

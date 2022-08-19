@@ -111,7 +111,7 @@ func (o *objApiUser) TeamViewRtcNotify(ctx iris.Context) {
 		var roomId = params.Payload.ChannelName
 		var uid = params.Payload.UId
 
-		code, msg, content := services.GetInsUserSvr().TeamViewRtcNotifySvr(roomId, uid, eventType, string(utils.StrVal(params)))
+		code, msg, content := services.GetInsUserSvr().V2TeamViewRtcNotifySvr(roomId, uid, eventType, string(utils.StrVal(params)))
 		ctx.JSON(models.ApiJsonResp(code, msg, content))
 	}
 }
@@ -156,8 +156,10 @@ func (o *objApiUser) TeamViewVodNotify(ctx iris.Context) {
 		var roomId = params.Payload.CName
 		var uid = params.Payload.UId
 		var sendTs = params.Payload.SendTs
+		var details = params.Payload.Details
 
-		code, msg, content := services.GetInsUserSvr().TeamViewVodNotifySvr(roomId, uid, eventType, utils.StrVal(params), sendTs)
+		//code, msg, content := services.GetInsUserSvr().TeamViewVodNotifySvr(roomId, uid, eventType, utils.StrVal(params), sendTs)
+		code, msg, content := services.GetInsUserSvr().V2TeamViewVodNotifySvr(details, roomId, uid, eventType, utils.StrVal(params), sendTs)
 		ctx.JSON(models.ApiJsonResp(code, msg, content))
 	}
 }
@@ -168,6 +170,7 @@ func (o *objApiUser) TeamViewVodNotify(ctx iris.Context) {
 // @tags teamview
 // @accept json
 // @product json
+// @param Authorization header string true "Bearer token"
 // @param default body models.ReqInsertRoom true "创建房间"
 // @success 200 {object} models.RespInsertRoom
 // @router /teamview/insertRoom [post]
@@ -187,7 +190,7 @@ func (o *objApiUser) InsertRoom(ctx iris.Context) {
 	}
 
 	var uid = middleware.JWTUserId(ctx)
-	code, msg, content := services.GetInsUserSvr().InsertRoomSvr(uid, isJoin)
+	code, msg, content := services.GetInsUserSvr().V2InsertRoomSvr(uid, isJoin)
 	ctx.JSON(models.ApiJsonResp(code, msg, content))
 }
 
@@ -197,6 +200,7 @@ func (o *objApiUser) InsertRoom(ctx iris.Context) {
 // @tags teamview
 // @accept json
 // @product json
+// @param Authorization header string true "Bearer token"
 // @param default body models.ReqUId true "获取用户信息"
 // @success 200 {object} models.UserInfo
 // @router /teamview/getUserInfo [post]
@@ -224,6 +228,7 @@ func (o *objApiUser) GetUserInfo(ctx iris.Context) {
 // @tags teamview
 // @accept json
 // @product json
+// @param Authorization header string true "Bearer token"
 // @param default body models.ReqJoinRoom true "加入房间参数"
 // @success 200 {object} models.RespJoinRoom
 // @router /teamview/joinRoom [post]
@@ -248,7 +253,7 @@ func (o *objApiUser) JoinRoom(ctx iris.Context) {
 	}
 
 	var uid = middleware.JWTUserId(ctx)
-	code, msg, content := services.GetInsUserSvr().JoinRoomSvr(roomId, uid, userRole)
+	code, msg, content := services.GetInsUserSvr().V2JoinRoomSvr(roomId, uid, userRole)
 	ctx.JSON(models.ApiJsonResp(code, msg, content))
 }
 
@@ -258,6 +263,7 @@ func (o *objApiUser) JoinRoom(ctx iris.Context) {
 // @tags teamview
 // @accept json
 // @product json
+// @param Authorization header string true "Bearer token"
 // @param default body models.ReqLeaveRoom true "用户离开房间"
 // @success 200 {object} models.ApiJson
 // @router /teamview/leaveRoom [post]
@@ -277,7 +283,7 @@ func (o *objApiUser) LeaveRoom(ctx iris.Context) {
 		return
 	}
 
-	code, msg, content := services.GetInsUserSvr().LeaveRoomSvr(roomId, uid)
+	code, msg, content := services.GetInsUserSvr().V2LeaveRoomSvr(roomId, uid)
 	ctx.JSON(models.ApiJsonResp(code, msg, content))
 }
 
@@ -287,6 +293,7 @@ func (o *objApiUser) LeaveRoom(ctx iris.Context) {
 // @tags teamview
 // @accept json
 // @product json
+// @param Authorization header string true "Bearer token"
 // @param default body models.ReqGetRoomList true "获取房间列表参数"
 // @success 200 {object} models.RespOngoingRoomList "进行中房间列表"
 // @success 2002 {object} models.RespFinishedRoomList "结束房间列表(为了区分文档，code使用2002)"
@@ -318,6 +325,7 @@ func (o *objApiUser) GetRoomList(ctx iris.Context) {
 // @tags teamview
 // @accept json
 // @product json
+// @param Authorization header string true "Bearer token"
 // @param default body models.ParamPageList true "获取专家列表参数"
 // @success 200 {object} models.RespGetSpecialist
 // @router /teamview/getSpecialist [post]
@@ -348,6 +356,7 @@ func (o *objApiUser) GetSpecialist(ctx iris.Context) {
 // @tags teamview
 // @accept json
 // @product json
+// @param Authorization header string true "Bearer token"
 // @param default body models.ReqInsertUserOnlineInfo true "记录用户在线心跳包信息参数"
 // @success 200 {object} models.ApiJson
 // @router /teamview/insertUserOnlineInfo [post]
@@ -373,51 +382,5 @@ func (o *objApiUser) InsertUserOnlineInfo(ctx iris.Context) {
 	}
 
 	code, msg, content := services.GetInsUserSvr().InsertUserOnlineInfoSvr(uid, optTs, "")
-	ctx.JSON(models.ApiJsonResp(code, msg, content))
-}
-
-// StartVod godoc
-// @summary 录制
-// @description 录制
-// @tags vod
-// @accept json
-// @product json
-// @param default body models.ParamsTestVod true "录像频道id和uid参数"
-// @success 200 {object} models.RespStartVodRecording
-// @router /teamview/startVod [post]
-func (o *objApiUser) StartVod(ctx iris.Context) {
-	global.GLogger.Info("StartVod called")
-	var params models.ParamsTestVod
-	if err := utils.ARIrisReadJson(ctx, &params); err != nil {
-		return
-	}
-	global.GLogger.Info("parameters: ", utils.StrVal(params))
-
-	cname := params.CName
-	uid := params.UId
-	code, msg, content := services.GetInsUserSvr().V2StartVodSvr(cname, uid)
-	ctx.JSON(models.ApiJsonResp(code, msg, content))
-}
-
-// GetRtcToken godoc
-// @summary 生成rtcToken
-// @description 生成rtcToken
-// @tags vod
-// @accept json
-// @product json
-// @param default body models.ParamsTestVod true "录像频道id和uid参数"
-// @success 200 {object} models.ApiJson
-// @router /teamview/getRtcToken [post]
-func (o *objApiUser) GetRtcToken(ctx iris.Context) {
-	global.GLogger.Info("GetRtcToken called")
-	var params models.ParamsTestVod
-	if err := utils.ARIrisReadJson(ctx, &params); err != nil {
-		return
-	}
-	global.GLogger.Info("parameters: ", utils.StrVal(params))
-
-	cname := params.CName
-	uid := params.UId
-	code, msg, content := services.GetInsUserSvr().GetRtcToken(utils.FormatNowUnix(), cname, uid)
 	ctx.JSON(models.ApiJsonResp(code, msg, content))
 }

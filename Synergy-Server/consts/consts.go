@@ -15,7 +15,9 @@ const (
 	IntFive = 5
 	// IntTen 常量10
 	IntTen = 10
-	// IntTen 常量1024
+	// IntThirty 常量30
+	IntThirty = 30
+	// IntOneZeroTwoFour 常量1024
 	IntOneZeroTwoFour = 1024
 )
 
@@ -28,12 +30,15 @@ const (
 	StrSpace = " "
 	// StrAsterisk *
 	StrAsterisk = "*"
+	// StrUnderline _
+	StrUnderline = "_"
 	// StrAsterisk *
 	StrFileSuffix = ".mp4"
 )
 const (
 	// DftLogExpire 默认日志保存天数
 	DftLogExpire = 1
+	Dft1Sec      = 1 * time.Second
 	Dft2Sec      = 2 * time.Second
 	Dft3Sec      = 3 * time.Second
 	Dft5Sec      = 5 * time.Second
@@ -131,12 +136,14 @@ const (
 
 // 房间状态(1:结束,2:进行中,3:转码中)
 const (
-	//1:结束
+	//1:录像结束
 	RoomStateClosed = 1
 	//2:进行中
 	RoomStateOpen = 2
 	//3:转码中
 	RoomStateMixed = 3
+	//4:通话结束
+	RoomStateCallFinished = 4
 )
 
 // 是否加入房间(1:是,2:否)

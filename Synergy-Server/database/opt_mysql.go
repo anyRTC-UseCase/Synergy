@@ -120,6 +120,7 @@ func QueryRoomInfoById(roomId string) (tableData []map[string]interface{}, err e
 		"r_vod_uid as roomVodUId, " +
 		"r_vod_resource_id as roomVodResourceId, " +
 		"r_vod_sid as roomVodSId, " +
+		"r_vod_file_url as roomFileUrl, " +
 		"r_ts as roomTs " +
 		"from room_info " +
 		"where roomid = ? "
@@ -586,6 +587,30 @@ func DayDeleteUserOnlineInfo(ts int64) (cnt int, err error) {
 	return int(rowsAffected), err
 }
 
+//每天0点55分执行任务删掉30天之前的房间
+func DayDeleteRoom(ts int64) (cnt int, err error) {
+
+	var strSql = "delete from room_info where r_ts < ? "
+	stmt, err := global.GDb.Prepare(strSql)
+	if err != nil {
+		global.GLogger.Error("DayDeleteRoom, 1, ", err)
+		return -1, errors.New(consts.ErrDbError)
+	}
+	result, err := stmt.Exec(ts)
+	if err != nil {
+		global.GLogger.Error("DayDeleteRoom, 2, ", err)
+		return -1, errors.New(consts.ErrDbError)
+	}
+	defer stmt.Close()
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		global.GLogger.Error("DayDeleteRoom, 3, ", err)
+		return -1, errors.New(consts.ErrDbError)
+	}
+
+	return int(rowsAffected), err
+}
+
 /**
  * 更新房间状态为转码
  */
@@ -607,6 +632,84 @@ func UpdateRoomStateMixed(roomId string) (cnt int, err error) {
 	affectRaws, err := result.RowsAffected()
 	if err != nil {
 		global.GLogger.Error("UpdateRoomStateMixed 3, error: ", err)
+		return -1, err
+	}
+	return int(affectRaws), err
+}
+
+/**
+ * 更新房间状态为转码
+ */
+func V2UpdateRoomStateMixed(roomId string) (cnt int, err error) {
+
+	var strSql = "update room_info set r_state = ? where roomid = ? and r_state = ?"
+	stmt, err := global.GDb.Prepare(strSql)
+	if err != nil {
+		global.GLogger.Error("V2UpdateRoomStateMixed 1, error: ", err)
+		return -1, err
+	}
+
+	result, err := stmt.Exec(consts.RoomStateMixed, roomId, consts.RoomStateCallFinished)
+	if err != nil {
+		global.GLogger.Error("V2UpdateRoomStateMixed 2, error: ", err)
+		return -1, err
+	}
+
+	affectRaws, err := result.RowsAffected()
+	if err != nil {
+		global.GLogger.Error("V2UpdateRoomStateMixed 3, error: ", err)
+		return -1, err
+	}
+	return int(affectRaws), err
+}
+
+/**
+ * 更新房间状态为通话结束
+ */
+func UpdateRoomStateCallFinished(roomId string) (cnt int, err error) {
+
+	var strSql = "update room_info set r_state = ? where roomid = ? and r_state = ?"
+	stmt, err := global.GDb.Prepare(strSql)
+	if err != nil {
+		global.GLogger.Error("UpdateRoomStateCallFinished 1, error: ", err)
+		return -1, err
+	}
+
+	result, err := stmt.Exec(consts.RoomStateCallFinished, roomId, consts.RoomStateOpen)
+	if err != nil {
+		global.GLogger.Error("UpdateRoomStateCallFinished 2, error: ", err)
+		return -1, err
+	}
+
+	affectRaws, err := result.RowsAffected()
+	if err != nil {
+		global.GLogger.Error("UpdateRoomStateCallFinished 3, error: ", err)
+		return -1, err
+	}
+	return int(affectRaws), err
+}
+
+/**
+ * 更新房间状态为正在进行中
+ */
+func UpdateRoomStateOpen(roomId string) (cnt int, err error) {
+
+	var strSql = "update room_info set r_state = ? where roomid = ? and r_state = ?"
+	stmt, err := global.GDb.Prepare(strSql)
+	if err != nil {
+		global.GLogger.Error("UpdateRoomStateOpen 1, error: ", err)
+		return -1, err
+	}
+
+	result, err := stmt.Exec(consts.RoomStateOpen, roomId, consts.RoomStateCallFinished)
+	if err != nil {
+		global.GLogger.Error("UpdateRoomStateOpen 2, error: ", err)
+		return -1, err
+	}
+
+	affectRaws, err := result.RowsAffected()
+	if err != nil {
+		global.GLogger.Error("UpdateRoomStateOpen 3, error: ", err)
 		return -1, err
 	}
 	return int(affectRaws), err

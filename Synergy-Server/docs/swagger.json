@@ -158,6 +158,13 @@
                 "summary": "获取用户信息",
                 "parameters": [
                     {
+                        "type": "string",
+                        "description": "Bearer token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
                         "description": "获取用户信息",
                         "name": "default",
                         "in": "body",
@@ -188,6 +195,13 @@
                 ],
                 "summary": "创建房间",
                 "parameters": [
+                    {
+                        "type": "string",
+                        "description": "token",
+                        "name": "default",
+                        "in": "header",
+                        "required": true
+                    },
                     {
                         "description": "创建房间",
                         "name": "default",
@@ -332,37 +346,6 @@
                 }
             }
         },
-        "/teamview/startVod": {
-            "post": {
-                "description": "录制",
-                "consumes": [
-                    "application/json"
-                ],
-                "tags": [
-                    "vod"
-                ],
-                "summary": "录制",
-                "parameters": [
-                    {
-                        "description": "录像频道id和uid参数",
-                        "name": "default",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/models.ParamsTestVod"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/models.RespStartVodRecording"
-                        }
-                    }
-                }
-            }
-        },
         "/teamview/teamViewRtcNotify": {
             "post": {
                 "description": "消息回调",
@@ -435,8 +418,7 @@
                     "type": "integer"
                 },
                 "data": {
-                    "description": "响应数据",
-                    "type": "object"
+                    "description": "响应数据"
                 },
                 "msg": {
                     "description": "消息",
@@ -697,7 +679,6 @@
                 },
                 "payload": {
                     "description": "请求包",
-                    "type": "object",
                     "$ref": "#/definitions/models.Payload"
                 },
                 "productId": {
@@ -727,7 +708,6 @@
                 },
                 "payload": {
                     "description": "请求包",
-                    "type": "object",
                     "$ref": "#/definitions/models.VodPayload"
                 },
                 "productId": {
@@ -811,7 +791,6 @@
             "properties": {
                 "roomInfo": {
                     "description": "房间信息",
-                    "type": "object",
                     "$ref": "#/definitions/models.RoomInfo"
                 },
                 "rtcToken": {
@@ -869,23 +848,13 @@
                 }
             }
         },
-        "models.RespStartVodRecording": {
-            "type": "object",
-            "properties": {
-                "Body": {
-                    "description": "响应体",
-                    "type": "object",
-                    "$ref": "#/definitions/models.StartBody"
-                },
-                "Code": {
-                    "description": "响应码",
-                    "type": "integer"
-                }
-            }
-        },
         "models.RoomInfo": {
             "type": "object",
             "properties": {
+                "roomFileUrl": {
+                    "description": "房间录像文件url",
+                    "type": "string"
+                },
                 "roomHostId": {
                     "description": "房主uid",
                     "type": "string"
@@ -949,19 +918,6 @@
                 },
                 "workName": {
                     "description": "用户工种",
-                    "type": "string"
-                }
-            }
-        },
-        "models.StartBody": {
-            "type": "object",
-            "properties": {
-                "resourceId": {
-                    "description": "云端录制使用的 resource ID。",
-                    "type": "string"
-                },
-                "sid": {
-                    "description": "录制 ID。成功开始云端录制后，你会得到一个 sid （录制 ID)。该 ID 是一次录制周期的唯一标识。",
                     "type": "string"
                 }
             }

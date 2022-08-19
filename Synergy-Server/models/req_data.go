@@ -68,14 +68,6 @@ type ReqInsertUserOnlineInfo struct {
 	//RoomId string `json:"roomId"`
 }
 
-//录像频道id和uid
-type ParamsTestVod struct {
-	//用户id
-	UId string `json:"uid"`
-	//频道id
-	CName string `json:"cname"`
-}
-
 //uid
 type ReqUId struct {
 	//用户id
@@ -213,12 +205,18 @@ type RecordingConfig struct {
 	//1：3 到 7 个 UID
 	//2：8 到 12 个 UID
 	//3：13 到 17 个 UID
-	SubscribeUidGroup int `json:"subscribeUidGroup"` //预估的订阅人数峰值。在单流模式下，为必填参数。举例来说，如果 subscribeVideoUids 为 ["100","101","102"]，subscribeAudioUids 为 ["101","102","103"]，则订阅人数为 4 人。
+	//SubscribeUidGroup int `json:"subscribeUidGroup"` //预估的订阅人数峰值。在单流模式下，为必填参数。举例来说，如果 subscribeVideoUids 为 ["100","101","102"]，subscribeAudioUids 为 ["101","102","103"]，则订阅人数为 4 人。
 	//
 	//（选填）Number 类型，设置订阅的视频流类型。如果频道中有用户开启了双流模式，你可以选择订阅视频大流或者小流。
 	//0：视频大流（默认），即高分辨率高码率的视频流
 	//1：视频小流，即低分辨率低码率的视频流
 	VideoStreamType int `json:"videoStreamType"`
+
+	//（选填）JSONArray 类型，由 UID 组成的数组，指定订阅哪几个 UID 的音频流。数组长度不得超过 32，不推荐使用空数组。
+	SubscribeAudioUids []string `json:"subscribeAudioUids"`
+
+	//（选填）JSONArray 类型，由 UID 组成的数组，指定订阅哪几个 UID 的视频流。数组长度不得超过 32，不推荐使用空数组。
+	SubscribeVideoUids []string `json:"subscribeVideoUids"`
 }
 type TranscodingConfig struct {
 	//example: 640
@@ -358,4 +356,20 @@ type ReqStopVodRecording struct {
 	Cname string `json:"cname,omitempty"`
 	//字符串内容为云端录制服务在频道内使用的 UID，用于标识该录制服务，需要和你在 acquire 请求中输入的 UID 相同。
 	UId string `json:"uid,omitempty"`
+}
+
+type VodNotifyDetails struct {
+	EventType int                 `json:"eventType"`
+	MsgName   string              `json:"msgName"`
+	Status    int                 `json:"status"`
+	FileList  []VodNotifyFileInfo `json:"fileList"`
+}
+
+type VodNotifyFileInfo struct {
+	Filename       string `json:"filename"`
+	TrackType      string `json:"trackType"`
+	MixedAllUser   bool   `json:"mixedAllUser"`
+	UID            string `json:"uid"`
+	IsPlayable     bool   `json:"isPlayable"`
+	SliceStartTime int64  `json:"sliceStartTime"`
 }

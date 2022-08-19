@@ -66,3 +66,9 @@ CREATE TABLE `user_online_info`  (
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '用户在线心跳包信息表' ROW_FORMAT = Dynamic;
 
 SET FOREIGN_KEY_CHECKS = 1;
+
+
+2.0数据库更新
+房间状态添加通话结束状态
+ALTER TABLE `ar_teamview`.`room_info` 
+MODIFY COLUMN `r_state` tinyint(4) NOT NULL DEFAULT 4 COMMENT '房间状态(1:录像结束,2:进行中,3:转码中,4:通话结束)' AFTER `r_hostid`;

@@ -7,7 +7,6 @@ definitions:
         type: integer
       data:
         description: 响应数据
-        type: object
       msg:
         description: 消息
         type: string
@@ -194,7 +193,6 @@ definitions:
       payload:
         $ref: '#/definitions/models.Payload'
         description: 请求包
-        type: object
       productId:
         description: 通知产品类型
         type: integer
@@ -216,7 +214,6 @@ definitions:
       payload:
         $ref: '#/definitions/models.VodPayload'
         description: 请求包
-        type: object
       productId:
         description: 通知产品类型
         type: integer
@@ -275,7 +272,6 @@ definitions:
       roomInfo:
         $ref: '#/definitions/models.RoomInfo'
         description: 房间信息
-        type: object
       rtcToken:
         description: rtcToken
         type: string
@@ -315,18 +311,11 @@ definitions:
         description: 用户工种
         type: string
     type: object
-  models.RespStartVodRecording:
-    properties:
-      Body:
-        $ref: '#/definitions/models.StartBody'
-        description: 响应体
-        type: object
-      Code:
-        description: 响应码
-        type: integer
-    type: object
   models.RoomInfo:
     properties:
+      roomFileUrl:
+        description: 房间录像文件url
+        type: string
       roomHostId:
         description: 房主uid
         type: string
@@ -374,15 +363,6 @@ definitions:
         type: integer
       workName:
         description: 用户工种
-        type: string
-    type: object
-  models.StartBody:
-    properties:
-      resourceId:
-        description: 云端录制使用的 resource ID。
-        type: string
-      sid:
-        description: 录制 ID。成功开始云端录制后，你会得到一个 sid （录制 ID)。该 ID 是一次录制周期的唯一标识。
         type: string
     type: object
   models.UserInfo:
@@ -530,6 +510,11 @@ paths:
       - application/json
       description: 获取用户信息
       parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
       - description: 获取用户信息
         in: body
         name: default
@@ -550,6 +535,11 @@ paths:
       - application/json
       description: 创建房间
       parameters:
+      - description: token
+        in: header
+        name: default
+        required: true
+        type: string
       - description: 创建房间
         in: body
         name: default
@@ -644,26 +634,6 @@ paths:
       summary: 用户登录
       tags:
       - teamview
-  /teamview/startVod:
-    post:
-      consumes:
-      - application/json
-      description: 录制
-      parameters:
-      - description: 录像频道id和uid参数
-        in: body
-        name: default
-        required: true
-        schema:
-          $ref: '#/definitions/models.ParamsTestVod'
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/models.RespStartVodRecording'
-      summary: 录制
-      tags:
-      - vod
   /teamview/teamViewRtcNotify:
     post:
       consumes:

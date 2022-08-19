@@ -104,6 +104,47 @@ logExpire = 3
 logDir = "/var/log/arteamviewservice"
 ```
 
+`初始化swag接口文档`
+
+> 不需要文档可跳过此步骤
+
+1. 修改项目根目录main.go文件
+
+   ```
+   #47行
+   // @host 192.168.1.140:12681
+   192.168.1.140修改为你自己的服务器ip
+   
+   #251行
+   URL: "http://192.168.1.140:12681/swagger/doc.json", //The url pointing to API definition
+   192.168.1.140修改为你自己的服务器ip
+   ```
+
+2. 安装swag包
+
+   ```
+   go install github.com/swaggo/swag/cmd/swag@latest
+   ```
+
+3. 验证
+
+   ```
+   swag -version
+   ```
+
+4. 初始化
+
+   ```
+   swag init
+   ```
+
+5. 项目启动后访问下面url即可得到swag文档
+
+   ```
+   http://192.168.1.140:12681/swagger/index.html
+   192.168.1.140修改为你自己的服务器ip
+   ```
+
 `编译启动项目`
 
 `linux环境`
@@ -147,20 +188,23 @@ F:\ARTeamViewService> go build -o arteamviewservice.exe -ldflags -w ./main.go
 ### 五、项目主要功能
 
 - signIn:注册登录为一体的登录
-
 - insertRoom:创建房间
 - joinRoom:加入房间
-
 - leaveRoom:离开房间
-
 - getRoomList:获取房间列表
-
 - getSpecialist:获取专家列表
-
 - getUserInfo:获取用户信息
-
 - teamViewRtcNotify:事件回调
-
 - teamViewVodNotify:录像回调
 - insertUserOnlineInfo:记录用户的在线信息
 
+### 六、更新摘要
+
+- 2.0更新
+  1. 更新golang到1.18
+  2. 添加接口swag文档
+  3. 录像添加SubscribeAudioUids和SubscribeVideoUids字段,音频录取全部,视频只录取移动端
+  4. 录像stop和31的回调fileList为空,组装录像文件url
+  5. 房间只保存30天,库定时删除30天之前的房间,阿里云删除30天之前的录像文件
+  6. 房间状态添加通话结束,四个状态的逻辑处理
+  7. 数据库更新（见项目/database/ar_teamview.sql中的2.0数据库更新）

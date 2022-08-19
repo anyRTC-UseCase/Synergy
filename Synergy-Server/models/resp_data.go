@@ -75,6 +75,8 @@ type RoomInfo struct {
 	RoomVodResourceId string `json:"roomVodResourceId"`
 	//房间录像的录制 ID
 	RoomVodSId string `json:"roomVodSId"`
+	//房间录像文件url
+	RoomFileUrl string `json:"roomFileUrl"`
 }
 
 //进行中房间信息
@@ -217,7 +219,6 @@ type RespStartVodRecording struct {
 	Body *StartBody `json:"Body,omitempty"`
 }
 
-//
 type StartResp struct {
 	//云端录制使用的 resource ID。
 	ResourceId string `json:"resourceId,omitempty"`
