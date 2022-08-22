@@ -73,7 +73,16 @@ httpVodPrefix = "https://api.agrtc.cn"
 # 如果是私有oss,并且配置信息中fileNamePrefix配置了文件存储位置(参看下面 第三方云存储的配置信息),此时前缀为:
 httpVodFilePrefix = "http://host:port/directory3/directory4/"
 
-# 第三方云存储的配置信息(如果是私有oss,参见https://github.com/anyRTC/Tools/tree/master/RecodingStoreServer)
+# 如果是私有oss，请在服务器使用crontab 设置定时任务删除录像文件，可忽略ossEndpoint参数
+# 录像文件保存天数
+vodValidDays = 30
+# Bucket对应的Endpoint，以华东1（杭州）为例，填写为https://oss-cn-hangzhou.aliyuncs.com
+ossEndpoint = ""
+
+# 第三方云存储的配置信息
+# 如果是阿里云oss，参见https://docs.anyrtc.io/cn/Recording/restful/cloud_recording_api_rest
+# 如果是私有oss,参见https://github.com/anyRTC/Tools/tree/master/RecodingStoreServer
+# 以下配置为私有oss
 [dConfig.storageConfig]
 # 文件传输接口URL
 bucket= "http://host:port/arapi/v1/fdfs/file/uploadOssFile"
@@ -200,11 +209,11 @@ F:\ARTeamViewService> go build -o arteamviewservice.exe -ldflags -w ./main.go
 
 ### 六、更新摘要
 
-- 2.0更新
+- 2.1更新
   1. 更新golang到1.18
   2. 添加接口swag文档
   3. 录像添加SubscribeAudioUids和SubscribeVideoUids字段,音频录取全部,视频只录取移动端
   4. 录像stop和31的回调fileList为空,组装录像文件url
-  5. 房间只保存30天,库定时删除30天之前的房间,阿里云删除30天之前的录像文件
+  5. 房间和录像文件只保存固定天数
   6. 房间状态添加通话结束,四个状态的逻辑处理
   7. 数据库更新（见项目/database/ar_teamview.sql中的2.0数据库更新）

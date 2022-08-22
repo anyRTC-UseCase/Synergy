@@ -51,7 +51,7 @@ import (
  * 当前版本
  */
 func version() (ver string) {
-	ver = "2.0.0"
+	ver = "2.1.0"
 	fmt.Printf("Welcome to use anyRTC arteamview server\r\n"+
 		"Current version is %s, thanks you very much!!!\r\n",
 		ver)
@@ -314,6 +314,7 @@ func main() {
 
 	//// run loop
 	go tasks.ServeCheckRunLoop()
+
 	//// start & listen server
 	addr := fmt.Sprintf("%s:%d", global.GConfig.Host, global.GConfig.Port)
 	err = app.Run(

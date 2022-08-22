@@ -766,3 +766,29 @@ func QueryUserJoinInfo(roomId, uid string) (tableData []map[string]interface{}, 
 	err = utils.RowToMap(rows, &tableData)
 	return tableData, err
 }
+
+// QueryInvalidRoomList 固定天数之前的房间列表
+func QueryInvalidRoomList(ts int64) (tableData []map[string]interface{}, err error) {
+	var strSql = "select roomid as roomId, " +
+		"r_name as roomName, " +
+		"r_hostid as roomHostId, " +
+		"r_state as roomState, " +
+		"r_vod_uid as roomVodUId, " +
+		"r_vod_resource_id as roomVodResourceId, " +
+		"r_vod_sid as roomVodSId, " +
+		"r_vod_file_url as roomFileUrl, " +
+		"r_ts as roomTs " +
+		"from room_info " +
+		"where r_ts < ? "
+	rows, err := global.GDb.Query(strSql, ts)
+
+	if err != nil {
+		global.GLogger.Error("QueryInvalidRoomList, 1, ", err)
+		return nil, errors.New(consts.ErrDbError)
+	}
+	defer rows.Close()
+
+	tableData = make([]map[string]interface{}, 0)
+	err = utils.RowToMap(rows, &tableData)
+	return tableData, err
+}

@@ -23,6 +23,11 @@ useConf = "d"
   ### 录像文件播放下载地址前缀
   httpVodFilePrefix = "http://host:port/directory3/directory4/"
 
+  # 录像文件保存天数
+  vodValidDays = 30
+  # Bucket对应的Endpoint，以华东1（杭州）为例，填写为https://oss-cn-hangzhou.aliyuncs.com
+  ossEndpoint = ""
+
   #./web/views/
   webSource = "./web/views"
 

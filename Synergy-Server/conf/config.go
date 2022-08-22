@@ -99,6 +99,10 @@ type ServerConfig struct {
 	HttpVodPrefix string `json:"httpVodPrefix" toml:"httpVodPrefix"`
 	//录像文件播放下载地址前缀
 	HttpVodFilePrefix string `json:"httpVodFilePrefix" toml:"httpVodFilePrefix"`
+	//录像文件保存天数
+	VodValidDays int64 `json:"vodValidDays" toml:"vodValidDays"`
+	//Bucket对应的Endpoint
+	OssEndpoint string `json:"ossEndpoint" toml:"ossEndpoint"`
 
 	//appId
 	AppId string `json:"appId" toml:"appId"`

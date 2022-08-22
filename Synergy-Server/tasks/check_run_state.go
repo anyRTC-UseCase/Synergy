@@ -24,7 +24,7 @@ func startDayAndMonthTask() {
 		dayDeleteUserOnlineInfo()
 	})
 
-	//每天0点55分执行任务删掉30天之前的房间
+	//每天0点55分执行任务删掉固定天数之前的房间
 	c.AddFunc("55 0 * * *", func() {
 		dayDeleteRoom()
 	})
@@ -33,7 +33,7 @@ func startDayAndMonthTask() {
 }
 
 /**
- * 每天0点55分执行任务删掉30天之前的房间
+ * 每天0点55分执行任务删掉固定天数之前的房间
  */
 func dayDeleteRoom() {
 	global.GLogger.Info(" function task dayDeleteRoom ", utils.FormatFullDate(utils.FormatNowUnix()))

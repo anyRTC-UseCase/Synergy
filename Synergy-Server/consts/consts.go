@@ -55,12 +55,14 @@ const (
 )
 
 const (
-	// token校验header
+	// RTCTokenHeader 校验header
 	RTCTokenHeader = "artc-token"
-	// anyrtc 常量
+	// ARAnyRtcStr anyrtc 常量
 	ARAnyRtcStr = "anyrtc"
-	// uid 常量
+	// ARUIdStr uid 常量
 	ARUIdStr = "uid"
+	// ARAliYunStr 常量
+	ARAliYunStr = "aliyun"
 )
 
 const (
@@ -180,4 +182,15 @@ const (
 	UserStateLeisure = 2
 	// 3:离线
 	UserStateOffline = 3
+)
+
+//0：七牛云
+//1：Amazon S3
+//2：阿里云
+//3：腾讯云
+//4：金山云
+//100：私有存储
+const (
+	// VendorAliYun 2：阿里云
+	VendorAliYun = 2
 )

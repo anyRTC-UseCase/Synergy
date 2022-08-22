@@ -1163,10 +1163,41 @@ func (u *userSvr) DayDeleteUserOnlineInfo() (int, string, interface{}) {
 	return consts.ErrCodeOk, consts.ErrOk, nil
 }
 
-// DayDeleteRoom 每天0点55分执行任务删掉30天之前的房间
+// DayDeleteRoom 每天0点55分执行任务删掉固定天数之前的房间
 func (u *userSvr) DayDeleteRoom() (int, string, interface{}) {
 	global.GLogger.Info("DayDeleteRoom called")
-	ts := utils.FormatNowUnix() - int64(consts.Dft24Hour/time.Second)*consts.IntThirty
+	ts := utils.FormatNowUnix() - int64(consts.Dft24Hour/time.Second)*global.GConfig.VodValidDays
+	//1.如果是阿里云，删除阿里云文件
+	if global.GConfig.StorageConfig.Vendor == consts.VendorAliYun {
+		//查出房间
+		roomList, err := database.QueryInvalidRoomList(ts)
+		if err != nil {
+			global.GLogger.Error(err)
+			return consts.ErrCodeDbError, consts.ErrDbError, err
+		}
+
+		var arrRoomInfo []models.RoomInfo
+		if code, msg, _ := utils.ARParseJson(roomList, &arrRoomInfo); code != consts.ErrCodeOk {
+			return code, msg, []models.RoomInfo{}
+		}
+		//删除文件
+		if len(arrRoomInfo) > 0 {
+			arrSidPrefix := make([]string, 0)
+			for _, roomInfo := range arrRoomInfo {
+				//如果url有aliyun,删除
+				if utils.StrContains(roomInfo.RoomFileUrl, consts.ARAliYunStr) {
+					prefix := utils.GetDeleteFilePrefix(roomInfo.RoomFileUrl)
+					arrSidPrefix = append(arrSidPrefix, prefix)
+				}
+			}
+			if len(arrSidPrefix) > 0 {
+				utils.OssDeleteFile(arrSidPrefix)
+			} else {
+				global.GLogger.Info("DayDeleteRoom arrSidPrefix: ", arrSidPrefix)
+			}
+		}
+	}
+	//2.删除库
 	cnt, err := database.DayDeleteRoom(ts)
 	if err != nil {
 		global.GLogger.Error(err)
