@@ -5,12 +5,14 @@ import android.graphics.Color
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.viewModels
+import androidx.lifecycle.lifecycleScope
 import com.hjq.permissions.Permission
 import com.hjq.permissions.XXPermissions
 import io.anyrtc.teamview.databinding.ActivityLoginBinding
 import io.anyrtc.teamview.utils.MyConstants
 import io.anyrtc.teamview.utils.SpUtil
 import io.anyrtc.teamview.vm.MainVM
+import kotlinx.coroutines.launch
 
 class LoginActivity : BaseActivity() {
 
@@ -58,7 +60,7 @@ class LoginActivity : BaseActivity() {
             }
 
             showLoading()
-            vm.login(nickname, 1, workName)
+            lifecycleScope.launch { vm.login(nickname, 1, workName) }
         }
 
         XXPermissions.with(this).permission(

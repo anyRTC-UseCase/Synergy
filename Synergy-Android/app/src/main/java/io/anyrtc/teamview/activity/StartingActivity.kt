@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.view.View
 import android.widget.Toast
 import androidx.activity.viewModels
+import androidx.lifecycle.lifecycleScope
 import com.hjq.permissions.Permission
 import com.hjq.permissions.XXPermissions
 import io.anyrtc.teamview.databinding.ActivityStartingBinding
@@ -13,7 +14,7 @@ import io.anyrtc.teamview.utils.MyConstants
 import io.anyrtc.teamview.utils.RtcManager
 import io.anyrtc.teamview.utils.SpUtil
 import io.anyrtc.teamview.vm.MainVM
-import java.util.*
+import kotlinx.coroutines.launch
 
 class StartingActivity : BaseActivity() {
 
@@ -82,7 +83,7 @@ class StartingActivity : BaseActivity() {
                 registerOnlineStatus()
                 binding.loading.hideLoading()
             }
-            vm.login(userName, 1, workName)
+            lifecycleScope.launch { vm.login(userName, 1, workName) }
         } else {
             registerOnlineStatus()
             loginSuccess = true
@@ -114,13 +115,15 @@ class StartingActivity : BaseActivity() {
             if (binding.loading.visibility == View.VISIBLE) {
                 return@setOnClickListener
             }
-
             if (!loginSuccess) {
                 showLoading("登录中")
                 userClick = true
-                vm.login(userName, 1, workName)
+                lifecycleScope.launch { vm.login(userName, 1, workName) }
                 return@setOnClickListener
             }
+            binding.start.isClickable = false
+            binding.start.postDelayed({ binding.start.isClickable = true }, 5000)
+
             showLoading("加载中")
             vm.createRoom(true)
         }

@@ -21,7 +21,6 @@ import org.json.JSONObject
 import rxhttp.*
 import rxhttp.wrapper.param.RxHttp
 import rxhttp.wrapper.param.RxHttpJsonParam
-import java.io.*
 import java.net.ConnectException
 import java.net.UnknownHostException
 
@@ -30,79 +29,79 @@ class MainVM : ViewModel() {
     val loginResponse = MutableLiveData<MyConstants.Response<MyConstants.LoginResult>>()
     val roomtListResponse = MutableLiveData<MyConstants.Response<MyConstants.RoomListResult>>()
     val specialListResponse = MutableLiveData<MyConstants.Response<MyConstants.SpecialListResult>>()
-	val filterSpecialListResponse = MutableLiveData<MyConstants.Response<MyConstants.SpecialListResult>>()
+    val filterSpecialListResponse =
+        MutableLiveData<MyConstants.Response<MyConstants.SpecialListResult>>()
 
     val userInfoResponse = MutableLiveData<MyConstants.Response<MyConstants.UserInfoResult>>()
     val createRoomResponse = MutableLiveData<MyConstants.Response<MyConstants.CreateRoomResult>>()
     val joinRoomResponse = MutableLiveData<MyConstants.Response<MyConstants.JoinRoomResult>>()
 
-    fun login(userName: str, userType: int, workName: str) {
+    suspend fun login(userName: str, userType: int, workName: str) {
         val uid = SpUtil.get().getString(MyConstants.UID, (0 until 9).fold("") { acc, _ ->
             "$acc${(0..9).random()}"
         })
-        viewModelScope.launch {
-            try {
-                val response = RxHttp.postJson(MyConstants.LOGIN)
-                    .add("uid", uid)
-                    .add("userName", userName)
-                    .add("userType", userType)
-                    .add("workName", workName).awaitOkResponse()
-                val responseHeaders = response.headers
-                /*for (header in responseHeaders) {
-                    val key = header.first
-                    val value = header.second
-                }*/
-                val authorization = responseHeaders["Artc-Token"] ?: throw UnknownHostException()
-                val json = response.body?.string() ?: throw NullPointerException()
+        try {
+            val response = RxHttp.postJson(MyConstants.LOGIN)
+                .add("uid", uid)
+                .add("userName", userName)
+                .add("userType", userType)
+                .add("workName", workName).awaitOkResponse()
+            val responseHeaders = response.headers
+            /*for (header in responseHeaders) {
+                val key = header.first
+                val value = header.second
+            }*/
+            val authorization = responseHeaders["Artc-Token"] ?: throw UnknownHostException()
+            val json = response.body?.string() ?: throw NullPointerException()
 
-                val jsonObj = JSONObject(json)
-                val dataObj = jsonObj.getJSONObject("data")
-                val msg = jsonObj.getString("msg")
-                val code = jsonObj.getInt("code")
+            val jsonObj = JSONObject(json)
+            val dataObj = jsonObj.getJSONObject("data")
+            val msg = jsonObj.getString("msg")
+            val code = jsonObj.getInt("code")
 
-                if (code == 0) {
-                    val appId = dataObj.getString("appId")
-                    val rtmToken = dataObj.getString("rtmToken")
-                    val sUid = dataObj.getString("uid")
-                    val sUserName = dataObj.getString("userName")
-                    val userTs = dataObj.getInt("userTs")
-                    val sWorkName = dataObj.getString("workName")
-                    val data = MyConstants.LoginResult(
-                        appId, rtmToken, sUid, sUserName, userTs, userType, sWorkName
-                    )
+            if (code == 0) {
+                val appId = dataObj.getString("appId")
+                val rtmToken = dataObj.getString("rtmToken")
+                val sUid = dataObj.getString("uid")
+                val sUserName = dataObj.getString("userName")
+                val userTs = dataObj.getInt("userTs")
+                val sWorkName = dataObj.getString("workName")
+                val data = MyConstants.LoginResult(
+                    appId, rtmToken, sUid, sUserName, userTs, userType, sWorkName
+                )
 
-                    App.token = authorization
-                    SpUtil.edit {
-                        it.putString(MyConstants.APP_ID, appId)
-                        //it.putString(MyConstants.HTTP_TOKEN, authorization)
-                        it.putString(MyConstants.UID, sUid)
-                        it.putString(MyConstants.USER_NAME, sUserName)
-                        it.putString(MyConstants.WORK_NAME, sWorkName)
-                    }
-
-					loginRtm(rtmToken, sUid) { failed, err ->
-						if (failed)
-					        loginResponse.postValue(MyConstants.Response("服务异常，请稍后重试", null))
-						else {
-							loginResponse.postValue(MyConstants.Response(msg, data))
-						}
-					}
-                    return@launch
+                App.token = authorization
+                SpUtil.edit {
+                    it.putString(MyConstants.APP_ID, appId)
+                    //it.putString(MyConstants.HTTP_TOKEN, authorization)
+                    it.putString(MyConstants.UID, sUid)
+                    it.putString(MyConstants.USER_NAME, sUserName)
+                    it.putString(MyConstants.WORK_NAME, sWorkName)
                 }
-                loginResponse.value = MyConstants.Response("服务异常，请稍后重试", null)
-            } catch (e: Exception) {
-				if (e is ConnectException) {
-					loginResponse.value = MyConstants.Response("网络出错，请稍后重试", null)
-					return@launch
-				}
-                val tipsStr = checkNetworkConn()
-                loginResponse.value = MyConstants.Response(tipsStr, null)
+
+                loginRtm(rtmToken, sUid) { failed, err ->
+                    if (failed)
+                        loginResponse.postValue(MyConstants.Response("服务异常，请稍后重试", null))
+                    else {
+                        loginResponse.postValue(MyConstants.Response(msg, data))
+                    }
+                }
+                return
             }
+            loginResponse.value = MyConstants.Response("服务异常，请稍后重试", null)
+        } catch (e: Exception) {
+            if (e is ConnectException) {
+                loginResponse.value = MyConstants.Response("网络出错，请稍后重试", null)
+                return
+            }
+            val tipsStr = checkNetworkConn()
+            loginResponse.value = MyConstants.Response(tipsStr, null)
         }
     }
 
     private fun checkNetworkConn(): String {
-        val cm = App.app.applicationContext.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        val cm =
+            App.app.applicationContext.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             val activeNetwork = cm.activeNetwork ?: return "网络出错，请稍后再试"
             val capabilityNetwork = cm.getNetworkCapabilities(activeNetwork) ?: return "网络出错，请稍后再试"
@@ -131,11 +130,11 @@ class MainVM : ViewModel() {
             .add("pageSize", pageSize), specialListResponse
     )
 
-	fun filterSpecialList(listSize: int) = reqPost(
-		RxHttp.postJson(MyConstants.SPECIAL_LIST)
+    fun filterSpecialList(listSize: int) = reqPost(
+        RxHttp.postJson(MyConstants.SPECIAL_LIST)
             .add("pageNum", 1)
             .add("pageSize", listSize), filterSpecialListResponse
-	)
+    )
 
     fun getUserInfo(uid: str) = reqPost(
         RxHttp.postJson(MyConstants.USER_INFO).add("uid", uid), userInfoResponse
@@ -192,7 +191,8 @@ class MainVM : ViewModel() {
         nickname: str,
         sent: ((success: bool, err: ErrorInfo?, localInvitation: LocalInvitation?) -> Unit) = { _, _, _ -> }
     ) {
-        val content = "{\"roomId\": $roomId, \"roomName\": \"$roomName\", \"roomTs\": $roomTs, \"userName\": \"$nickname\"}"
+        val content =
+            "{\"roomId\": $roomId, \"roomName\": \"$roomName\", \"roomTs\": $roomTs, \"userName\": \"$nickname\"}"
         RtcManager.INSTANCE.sendCall(uid, content, sent)
     }
 
@@ -213,13 +213,13 @@ class MainVM : ViewModel() {
         loginRtm(token, uid, loginCallback)
     }
 
-	fun addRtcHandler(handler: RtcManager.RtcHandler) {
-		RtcManager.INSTANCE.addRtcHandler(handler)
-	}
+    fun addRtcHandler(handler: RtcManager.RtcHandler) {
+        RtcManager.INSTANCE.addRtcHandler(handler)
+    }
 
-	fun removeRtcHandler(handler: RtcManager.RtcHandler) {
-		RtcManager.INSTANCE.removeRtcHandler(handler)
-	}
+    fun removeRtcHandler(handler: RtcManager.RtcHandler) {
+        RtcManager.INSTANCE.removeRtcHandler(handler)
+    }
 
     private fun setUpTextureView(textureView: TextureView, uid: String) {
         RtcManager.INSTANCE.changeRoleToBroadcaster()
@@ -253,10 +253,10 @@ class MainVM : ViewModel() {
             callback?.value = MyConstants.Response("服务异常，请稍后重试", null)
         } catch (e: Exception) {
             Log.e("::", "Req ERROR: $e")
-			if (e is ConnectException) {
-				callback?.value = MyConstants.Response("网络出错，请稍后重试", null)
-				return@launch
-			}
+            if (e is ConnectException) {
+                callback?.value = MyConstants.Response("网络出错，请稍后重试", null)
+                return@launch
+            }
             //callback?.value = MyConstants.Response(it.toString(), null)
             val tipsStr = checkNetworkConn()
             callback?.value = MyConstants.Response(tipsStr, null)
@@ -271,7 +271,7 @@ class MainVM : ViewModel() {
         RtcManager.INSTANCE.clearSelf()
     }
 
-	fun logoutRtm() {
-		RtcManager.INSTANCE.logoutRtm()
-	}
+    fun logoutRtm() {
+        RtcManager.INSTANCE.logoutRtm()
+    }
 }
