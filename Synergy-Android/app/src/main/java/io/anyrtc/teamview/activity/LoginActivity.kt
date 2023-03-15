@@ -66,7 +66,8 @@ class LoginActivity : BaseActivity() {
         XXPermissions.with(this).permission(
             Permission.CAMERA,
             Permission.RECORD_AUDIO,
-            Permission.WRITE_EXTERNAL_STORAGE
+            Permission.WRITE_EXTERNAL_STORAGE,
+            Permission.BLUETOOTH_CONNECT
         ).request { _, all ->
             if (!all) {
                 Toast.makeText(this@LoginActivity, "请开启权限", Toast.LENGTH_SHORT).show()
