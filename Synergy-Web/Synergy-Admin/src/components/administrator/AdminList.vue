@@ -85,7 +85,6 @@
       :page-sizes="[10, 20, 30, 40]"
       :page-size="Pagination.pageSize"
       :total="Pagination.totalNum"
-      :hide-on-single-page="true"
       background
       layout="sizes, prev, pager, next"
       @size-change="handleSizeChange"

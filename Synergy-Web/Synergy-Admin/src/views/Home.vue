@@ -4,7 +4,10 @@
       <Heater />
     </el-header>
     <el-main class="bg-gray-100">
-      <div ref="containerHeight" class="container m-auto bg-white p-5 h-full">
+      <div
+        ref="containerHeight"
+        class="container m-auto bg-white p-5 h-full overflow-hidden flex flex-col"
+      >
         <!-- 管理员端出现 -->
         <div class="flex justify-between pb-6">
           <div class="flex items-center">
@@ -59,8 +62,12 @@
           <div></div>
         </div>
         <!-- table 列表 -->
-        <specia-list :setHeight="oSetHeight" v-if="adminSeletType == 0" />
-        <admin-list v-else />
+        <div class="flex-1 overflow-hidden">
+          <el-scrollbar>
+            <specia-list :setHeight="oSetHeight" v-if="adminSeletType == 0" />
+            <admin-list v-else />
+          </el-scrollbar>
+        </div>
       </div>
     </el-main>
   </el-container>
